@@ -1,6 +1,15 @@
 # champions-game
 where champions are born
 
+Steps for running locally
+1. Start local ethereum node with `npx hardhat node`
+2. in a separate window, run deploy script for champions game `npx hardhat run --network localhost scripts/deploy.js`
+2. in a another window, start frontend with `npm start`
+3. add wallet address from metamask to src/app.js
+4. go to localhost:3000
+
+TODO: stake, then collect rewards, then unstake?
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
