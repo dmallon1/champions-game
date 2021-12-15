@@ -1,31 +1,109 @@
 import logo from './logo.svg';
 import './App.css';
 import { ethers } from "ethers";
+import React from 'react';
 
-function App() {
-    return (
-        <div className="App">
-            <header className="App-header">
-                <img src={logo} className="App-logo" alt="logo" />
-                <button type="button" className="btn btn-dark" onClick={() => foo()} style={{ height: '5vh', width: '10vw' }}>mint</button>
-            </header>
-        </div>
-    );
-}
+export default class App extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            champBalance: '~'
+        }
+    }
 
-async function foo() {
-    const provider = new ethers.providers.JsonRpcProvider();
-    const signer = await provider.getSigner()
-    console.log(await provider.getBlockNumber())
-    const localWalletAddress = "0x54E746019064b78a35a9F59467B54ec120F199A5";
+    componentDidMount() {
+        this.initializeApp().then(() => console.log("initialized"));
+    }
 
-    // Connect to the contract
-    const readContract = new ethers.Contract(contractAddress, contractInterface, provider);
-    // console.log(await readContract.mint(localWalletAddress));
+    async initializeApp() {
+        // A Web3Provider wraps a standard Web3 provider, which is
+        // what MetaMask injects as window.ethereum into each page
+        this.provider = new ethers.providers.Web3Provider(window.ethereum)
+        console.log(await this.provider.getBlockNumber());
 
-    const writeContract = readContract.connect(signer);
-    console.log(await writeContract.mint(localWalletAddress));
+        // this is super important, this is what links to metamask
+        await this.provider.send("eth_requestAccounts", []);
 
+        const signer = this.provider.getSigner();
+
+        this.walletddress = await signer.getAddress();
+        console.log("Account:", this.walletddress);
+
+        // Connect to the contract
+        this.readContract = new ethers.Contract(contractAddress, contractInterface, this.provider);
+        this.writeContract = this.readContract.connect(signer);
+        // console.log(await readContract.symbol());
+        this.readContract.balanceOf(signer.getAddress()).then((champBalance) => {
+            console.log(champBalance);
+            this.setState({ champBalance: champBalance.toNumber() }, () => console.log(this.state));
+        });
+    }
+
+    async refreshApp() {
+        const signer = this.provider.getSigner();
+        this.readContract.balanceOf(signer.getAddress()).then((champBalance) => {
+            this.setState({ champBalance: champBalance.toNumber() });
+        });
+    }
+
+    async mint() {
+        const ownerToChampionIds = await this.getOwnerToChampionIds(this.readContract);
+        console.log(ownerToChampionIds);
+
+        const signer = this.provider.getSigner();
+        // const champBalance = await this.readContract.balanceOf(signer.getAddress());
+        // console.log("total champs:", champBalance.toNumber());
+        // console.log(await this.provider.getBalance(signer.getAddress()));
+
+        const estimatedGas = await this.writeContract.estimateGas.mint(signer.getAddress());
+        const doubleGas = estimatedGas.add(estimatedGas);
+
+        // console.log(await writeContract.estimateGas.mint(signer.getAddress(), { gasLimit: doubleGas }));
+        console.log(await this.writeContract.mint(signer.getAddress(), { gasLimit: doubleGas }));
+
+        // this is not gonna be ready here becasue it's the transaction itself that is submitted,
+        // it's not guaranteed to be done, would have to listen for that or something, that would probbaly be ideal
+        this.refreshApp();
+    }
+
+    async addEther() {
+        // const localWalletAddress = "0x54E746019064b78a35a9F59467B54ec120F199A5";
+        const provider = new ethers.providers.JsonRpcProvider();
+
+        const signer = provider.getSigner()
+
+        const tx = await signer.sendTransaction({
+            to: this.walletddress,
+            value: ethers.utils.parseEther("1.0")
+        });
+        console.log(tx);
+    }
+
+    async getOwnerToChampionIds(readContract) {
+        const totalTokens = await readContract.minted();
+        const ownerToChampionIds = {}
+        for (let i = 0; i < totalTokens; i++) {
+            const owner = await readContract.ownerOf(i);
+            if (ownerToChampionIds[owner] === undefined) {
+                ownerToChampionIds[owner] = []
+            }
+            ownerToChampionIds[owner].push(i);
+        }
+        return ownerToChampionIds;
+    }
+
+    render() {
+        return (
+            <div className="App" >
+                <header className="App-header">
+                    <img src={logo} className="App-logo" alt="logo" />
+                    <button type="button" className="btn btn-dark" onClick={() => this.mint()} style={{ height: '5vh', width: '10vw' }}>mint</button>
+                    <button type="button" className="btn btn-dark" onClick={() => this.addEther()} style={{ height: '5vh', width: '10vw' }}>add ether</button>
+                    <p>You have {this.state.champBalance} champs!</p>
+                </header>
+            </div>
+        );
+    }
 }
 
 
@@ -694,8 +772,3 @@ const contractInterface = [
         "type": "function"
     }
 ];
-
-
-
-
-export default App;
