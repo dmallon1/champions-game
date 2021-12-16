@@ -7,7 +7,9 @@ export default class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            champBalance: '~'
+            champBalance: '~',
+            champs: null,
+            champIds: null
         }
     }
 
@@ -34,42 +36,47 @@ export default class App extends React.Component {
         this.writeContract = this.readContract.connect(signer);
         // console.log(await readContract.symbol());
         this.readContract.balanceOf(signer.getAddress()).then((champBalance) => {
-            console.log(champBalance);
-            this.setState({ champBalance: champBalance.toNumber() }, () => console.log(this.state));
-        });
-    }
-
-    async refreshApp() {
-        const signer = this.provider.getSigner();
-        this.readContract.balanceOf(signer.getAddress()).then((champBalance) => {
+            // console.log(champBalance);
             this.setState({ champBalance: champBalance.toNumber() });
         });
+
+        this.ownerToChampionIds = await this.getOwnerToChampionIds(this.readContract);
+        // console.log(this.ownerToChampionIds);
+
+        const proms = []
+        const champIds = []
+        this.ownerToChampionIds[this.walletddress].forEach(async c => {
+            // const userChamp = await this.readContract.champions(c);
+            proms.push(this.readContract.champions(c));
+            champIds.push(c);
+        });
+        Promise.all(proms).then(c => {
+            this.setState({ champs: c, champIds: champIds });
+        });
     }
 
-    async mint() {
-        const ownerToChampionIds = await this.getOwnerToChampionIds(this.readContract);
-        console.log(ownerToChampionIds);
+    // async refreshApp() {
+    //     const signer = this.provider.getSigner();
+    //     this.readContract.balanceOf(signer.getAddress()).then((champBalance) => {
+    //         this.setState({ champBalance: champBalance.toNumber() });
+    //     });
+    // }
 
+    async mint() {
         const signer = this.provider.getSigner();
-        // const champBalance = await this.readContract.balanceOf(signer.getAddress());
-        // console.log("total champs:", champBalance.toNumber());
-        // console.log(await this.provider.getBalance(signer.getAddress()));
 
         const estimatedGas = await this.writeContract.estimateGas.mint(signer.getAddress());
         const doubleGas = estimatedGas.add(estimatedGas);
 
-        // console.log(await writeContract.estimateGas.mint(signer.getAddress(), { gasLimit: doubleGas }));
         console.log(await this.writeContract.mint(signer.getAddress(), { gasLimit: doubleGas }));
 
         // this is not gonna be ready here becasue it's the transaction itself that is submitted,
         // it's not guaranteed to be done, would have to listen for that or something, that would probbaly be ideal
-        this.refreshApp();
+        // this.refreshApp();
     }
 
     async addEther() {
-        // const localWalletAddress = "0x54E746019064b78a35a9F59467B54ec120F199A5";
         const provider = new ethers.providers.JsonRpcProvider();
-
         const signer = provider.getSigner()
 
         const tx = await signer.sendTransaction({
@@ -100,6 +107,22 @@ export default class App extends React.Component {
                     <button type="button" className="btn btn-dark" onClick={() => this.mint()} style={{ height: '5vh', width: '10vw' }}>mint</button>
                     <button type="button" className="btn btn-dark" onClick={() => this.addEther()} style={{ height: '5vh', width: '10vw' }}>add ether</button>
                     <p>You have {this.state.champBalance} champs!</p>
+                    {this.state.champs &&
+                        <ul>
+                            {this.state.champs.map((c, i) => {
+                                const justKeys = Object.keys(c);
+                                const justKeysLen = Object.keys(c).length;
+                                const res = justKeys.slice(justKeysLen / 2);
+                                const betterRes = res.map(r => r + " : " + c[r])
+                                return (
+                                    <div key={i} style={{ margin: '20px' }}>
+                                        champ id : {this.state.champIds[i]}
+                                        {betterRes.map((x, j) => <div key={j}>{x}</div>)}
+                                    </div>
+                                )
+                            })}
+                        </ul>
+                    }
                 </header>
             </div>
         );

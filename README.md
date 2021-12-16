@@ -8,6 +8,10 @@ Steps for running locally
 3. add wallet address from metamask to src/app.js
 4. go to localhost:3000
 
+FAQ:
+If you run into the issue with metamask where it says the nonce is the wrong number.
+https://medium.com/@thelasthash/solved-nonce-too-high-error-with-metamask-and-hardhat-adc66f092cd
+
 TODO: stake, then collect rewards, then unstake?
 
 # Getting Started with Create React App
