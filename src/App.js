@@ -45,14 +45,16 @@ export default class App extends React.Component {
 
         const proms = []
         const champIds = []
-        this.ownerToChampionIds[this.walletddress].forEach(async c => {
-            // const userChamp = await this.readContract.champions(c);
-            proms.push(this.readContract.champions(c));
-            champIds.push(c);
-        });
-        Promise.all(proms).then(c => {
-            this.setState({ champs: c, champIds: champIds });
-        });
+        if (this.ownerToChampionIds && this.ownerToChampionIds[this.walletddress]) {
+            this.ownerToChampionIds[this.walletddress].forEach(async c => {
+                // const userChamp = await this.readContract.champions(c);
+                proms.push(this.readContract.champions(c));
+                champIds.push(c);
+            });
+            Promise.all(proms).then(c => {
+                this.setState({ champs: c, champIds: champIds });
+            });
+        }
     }
 
     // async refreshApp() {
