@@ -36,6 +36,12 @@ contract ChampionGame is ERC721URIStorage, Ownable {
         uint8 body;
         uint8 mainhand;
         uint8 offhand;
+        // uint8 hands;
+        // uint8 boots;
+        // uint8 mastery
+        // uint8 stamina
+        // uint8 agility
+        // uint8 equipment
         Level level;
     }
 
@@ -210,7 +216,7 @@ contract ChampionGame is ERC721URIStorage, Ownable {
     }
 
     function goToDungeon(uint256 championId) external {
-        require(msg.sender == ownerOf(championId));
+        require(msg.sender == ownerOf(championId), "not yo champion");
 
         transferFrom(msg.sender, address(this), championId);
 
@@ -224,7 +230,14 @@ contract ChampionGame is ERC721URIStorage, Ownable {
     function claimRewards(uint256 championId, bool unstake) external {
         DungeonStake memory dungeonStake = dungeon[championId];
 
-        require(dungeonStake.owner == msg.sender);
+        require(
+            dungeonStake.owner != address(0),
+            "this champion isn't in the dungeon"
+        );
+        require(
+            dungeonStake.owner == msg.sender,
+            "you are not the owner of this champion"
+        );
         require(
             block.timestamp - dungeonStake.value < MINIMUM_TO_EXIT,
             "not enough time has passed to claim rewards"
@@ -236,7 +249,7 @@ contract ChampionGame is ERC721URIStorage, Ownable {
         championCoin.mint(msg.sender, owed);
 
         if (unstake) {
-            transferFrom(address(this), msg.sender, championId);
+            _transfer(address(this), msg.sender, championId);
             delete dungeon[championId];
         } else {
             dungeon[championId].value = uint80(block.timestamp);

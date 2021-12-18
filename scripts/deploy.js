@@ -8,7 +8,12 @@ async function main() {
 
     // Start deployment, returning a promise that resolves to a contract object
     const championGameToken = await championsGame.deploy(coinContract.address);
-    console.log("Contract deployed to address:", championGameToken.address);
+
+    // add game contract as controller of coin contract
+    await coinContract.addController(championGameToken.address);
+
+    console.log("coin contract deployed to address:", coinContract.address);
+    console.log("game contract deployed to address:", championGameToken.address);
 }
 
 main()

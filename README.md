@@ -1,18 +1,18 @@
 # champions-game
 where champions are born
 
-Steps for running locally
+## Steps for running locally
 1. Start local ethereum node with `npx hardhat node`
 2. in a separate window, run deploy script for champions game `npx hardhat run --network localhost scripts/deploy.js`
 2. in a another window, start frontend with `npm start`
 3. add wallet address from metamask to src/app.js
 4. go to localhost:3000
 
-FAQ:
+## Troubleshooting
 If you run into the issue with metamask where it says the nonce is the wrong number.
 https://medium.com/@thelasthash/solved-nonce-too-high-error-with-metamask-and-hardhat-adc66f092cd
 
-TODO: stake, then collect rewards, then unstake?
+TODO: add events and listenting to those events to know when to refresh the app
 
 # Getting Started with Create React App
 
