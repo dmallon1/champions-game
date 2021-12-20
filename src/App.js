@@ -132,10 +132,9 @@ export default class App extends React.Component {
         const dungeonStakes = []
         for (let i = 0; i < totalTokens; i++) {
             const ds = await this.readContract.dungeon(i);
-            if (ds.owner === zeroAddress) {
-                break;
+            if (ds.owner !== zeroAddress) {
+                dungeonStakes.push(ds);
             }
-            dungeonStakes.push(ds);
         }
         return dungeonStakes;
     }
@@ -150,8 +149,7 @@ export default class App extends React.Component {
     }
 
     async claimRewards(unstake) {
-        // hardcode firstChampId for now
-        const firstChampId = 0;
+        const firstChampId = this.dungeonStakes.find(ds => ds.owner === this.walletddress).tokenId;
         console.log("claiming rewards for champion " + firstChampId);
         const estimatedGas = await this.writeContract.estimateGas.claimRewards(firstChampId, unstake);
         const doubleGas = estimatedGas.add(estimatedGas);
