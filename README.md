@@ -14,6 +14,10 @@ https://medium.com/@thelasthash/solved-nonce-too-high-error-with-metamask-and-ha
 
 TODO: add events and listenting to those events to know when to refresh the app
 
+latest ropsten
+coin contract deployed to address: 0xa13a5692FCcC06A7E2b4f380d7BF3aeF96aaDEa2
+game contract deployed to address: 0xCa115285a7647b876E5973Ffd82D8B2775dd2Abc
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

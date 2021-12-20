@@ -1,8 +1,13 @@
-import logo from './logo.svg';
 import './App.css';
 import { ethers } from "ethers";
 import React from 'react';
-import abi from './contractInterface';
+import { abi } from './contractInterface';
+const zeroAddress = "0x0000000000000000000000000000000000000000";
+const levels = ["common",
+    "uncommon",
+    "rare",
+    "epic",
+    "legendary"];
 
 export default class App extends React.Component {
     constructor(props) {
@@ -11,7 +16,9 @@ export default class App extends React.Component {
             champBalance: '~',
             champs: null,
             champIds: null,
-            dungeonStakes: null
+            dungeonStakes: null,
+            showAddEther: false,
+            yourWallet: ""
         }
     }
 
@@ -22,6 +29,11 @@ export default class App extends React.Component {
     async initializeApp() {
         // A Web3Provider wraps a standard Web3 provider, which is
         // what MetaMask injects as window.ethereum into each page
+        if (window.ethereum === undefined) {
+            console.log("window.ethereum missing");
+            return;
+        }
+
         this.provider = new ethers.providers.Web3Provider(window.ethereum)
         console.log(await this.provider.getBlockNumber());
 
@@ -37,12 +49,31 @@ export default class App extends React.Component {
         this.readContract = new ethers.Contract(contractAddress, abi, this.provider);
         this.writeContract = this.readContract.connect(signer);
         // console.log(await readContract.symbol());
-        this.readContract.balanceOf(signer.getAddress()).then((champBalance) => {
-            // console.log(champBalance);
-            this.setState({ champBalance: champBalance.toNumber() });
+
+
+        this.refreshApp();
+
+        // listen to transfer events
+        this.readContract.on("Transfer", (from, to, amount, event) => {
+            console.log(`${from} sent ${amount} to ${to}`);
+            console.log(event);
+            this.refreshApp();
+            // The event object contains the verbatim log data, the
+            // EventFragment and functions to fetch the block,
+            // transaction and receipt and event functions
         });
+    }
+
+    async refreshApp() {
+        const { chainId } = await this.provider.getNetwork();
+
+        this.readContract.balanceOf(this.walletddress).then((champBalance) =>
+            this.setState({ champBalance: champBalance.toNumber(), showAddEther: chainId === 31337, yourWallet: this.walletddress })
+        );
 
         this.ownerToChampionIds = await this.getOwnerToChampionIds(this.readContract);
+
+        // TODO: do something with the dungeon stakes
         this.dungeonStakes = await this.getDungeonStakes();
         console.log(this.dungeonStakes);
 
@@ -50,7 +81,6 @@ export default class App extends React.Component {
         const champIds = []
         if (this.ownerToChampionIds && this.ownerToChampionIds[this.walletddress]) {
             this.ownerToChampionIds[this.walletddress].forEach(async c => {
-                // const userChamp = await this.readContract.champions(c);
                 proms.push(this.readContract.champions(c));
                 champIds.push(c);
             });
@@ -59,13 +89,6 @@ export default class App extends React.Component {
             });
         }
     }
-
-    // async refreshApp() {
-    //     const signer = this.provider.getSigner();
-    //     this.readContract.balanceOf(signer.getAddress()).then((champBalance) => {
-    //         this.setState({ champBalance: champBalance.toNumber() });
-    //     });
-    // }
 
     async mint() {
         const signer = this.provider.getSigner();
@@ -109,6 +132,9 @@ export default class App extends React.Component {
         const dungeonStakes = []
         for (let i = 0; i < totalTokens; i++) {
             const ds = await this.readContract.dungeon(i);
+            if (ds.owner === zeroAddress) {
+                break;
+            }
             dungeonStakes.push(ds);
         }
         return dungeonStakes;
@@ -137,19 +163,27 @@ export default class App extends React.Component {
         return (
             <div className="App" >
                 <header className="App-header">
-                    <img src={logo} className="App-logo" alt="logo" />
-                    <button type="button" className="btn btn-dark" onClick={() => this.addEther()} style={{ height: '8vh', width: '10vw' }}>add ether</button>
-                    <button type="button" className="btn btn-dark" onClick={() => this.mint()} style={{ height: '8vh', width: '10vw' }}>mint</button>
-                    <button type="button" className="btn btn-dark" onClick={() => this.goToDungeon()} style={{ height: '8vh', width: '10vw' }}>go to dungeon</button>
-                    <button type="button" className="btn btn-dark" onClick={() => this.claimRewards(false)} style={{ height: '8vh', width: '10vw' }}>claim rewards only</button>
-                    <button type="button" className="btn btn-dark" onClick={() => this.claimRewards(true)} style={{ height: '8vh', width: '10vw' }}>claim rewards and unstake</button>
+                    <h1>Champions Game</h1>
+                    <p>game contract: {contractAddress}</p>
+                    <p>coin contract: {coinContractAddress}</p>
+                    <p>your wallet: {this.state.yourWallet}</p>
+                    {this.state.showAddEther && <button type="button" className="btn btn-dark" onClick={() => this.addEther()} style={{ height: '8vh', width: '40vw' }}>add ether</button>}
+                    <button type="button" className="btn btn-dark" onClick={() => this.mint()} style={{ height: '8vh', width: '40vw' }}>mint</button>
+                    <button type="button" className="btn btn-dark" onClick={() => this.goToDungeon()} style={{ height: '8vh', width: '40vw' }}>go to dungeon</button>
+                    <button type="button" className="btn btn-dark" onClick={() => this.claimRewards(false)} style={{ height: '8vh', width: '40vw' }}>claim rewards only</button>
+                    <button type="button" className="btn btn-dark" onClick={() => this.claimRewards(true)} style={{ height: '8vh', width: '40vw' }}>claim rewards and unstake</button>
                     <p>You have {this.state.champBalance} champs!</p>
                     {this.state.champs &&
-                        <ul>
+                        <div>
                             {this.state.champs.map((c, i) => {
                                 const justKeys = Object.keys(c);
                                 const res = justKeys.slice(justKeys.length / 2);
-                                const betterRes = res.map(r => r + " : " + c[r])
+                                const betterRes = res.map(r => {
+                                    if (r === "level") {
+                                        return r + " : " + levels[parseInt(c[r])];
+                                    }
+                                    return r + " : " + c[r];
+                                })
                                 return (
                                     <div key={i} style={{ margin: '20px' }}>
                                         champ id : {this.state.champIds[i]}
@@ -157,7 +191,7 @@ export default class App extends React.Component {
                                     </div>
                                 )
                             })}
-                        </ul>
+                        </div>
                     }
                 </header>
             </div>
@@ -166,4 +200,6 @@ export default class App extends React.Component {
 }
 
 
-const contractAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
+const contractAddress = "0xCa115285a7647b876E5973Ffd82D8B2775dd2Abc";
+// const contractAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
+const coinContractAddress = "0xa13a5692FCcC06A7E2b4f380d7BF3aeF96aaDEa2";

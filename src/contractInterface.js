@@ -1,4 +1,4 @@
-let foo; export default foo = [
+export const abi = [
     {
         "inputs": [
             {
