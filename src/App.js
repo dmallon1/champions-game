@@ -16,10 +16,13 @@ export default class App extends React.Component {
             champBalance: '~',
             champs: null,
             champIds: null,
-            dungeonStakes: null,
+            allDungeonStakes: null,
+            myDungeonStakes: null,
             showAddEther: false,
             yourWallet: ""
         }
+
+        this.showChampionInfo = this.showChampionInfo.bind(this);
     }
 
     componentDidMount() {
@@ -73,9 +76,12 @@ export default class App extends React.Component {
 
         this.ownerToChampionIds = await this.getOwnerToChampionIds(this.readContract);
 
+        await this.getAllChampions();
+
         // TODO: do something with the dungeon stakes
-        this.dungeonStakes = await this.getDungeonStakes();
-        console.log(this.dungeonStakes);
+        // this.dungeonStakes = await this.getDungeonStakes();
+        this.refreshDungeonStakes();
+        // console.log(this.dungeonStakes);
 
         const proms = []
         const champIds = []
@@ -127,16 +133,29 @@ export default class App extends React.Component {
         return ownerToChampionIds;
     }
 
-    async getDungeonStakes() {
+    async getAllChampions() {
+        const totalTokens = await this.readContract.minted();
+        const proms = [];
+        for (let i = 0; i < totalTokens; i++) {
+            proms.push(this.readContract.champions(i));
+        }
+        Promise.all(proms).then(c => this.allChamps = c);
+    }
+
+    async refreshDungeonStakes() {
         const totalTokens = await this.readContract.minted();
         const dungeonStakes = []
+        const myDungeonStakes = []
         for (let i = 0; i < totalTokens; i++) {
             const ds = await this.readContract.dungeon(i);
             if (ds.owner !== zeroAddress) {
                 dungeonStakes.push(ds);
             }
+            if (ds.owner === this.walletddress) {
+                myDungeonStakes.push(ds);
+            }
         }
-        return dungeonStakes;
+        this.setState({allDungeonStakes: dungeonStakes, myDungeonStakes: myDungeonStakes});
     }
 
     async goToDungeon() {
@@ -149,12 +168,34 @@ export default class App extends React.Component {
     }
 
     async claimRewards(unstake) {
-        const firstChampId = this.dungeonStakes.find(ds => ds.owner === this.walletddress).tokenId;
+        const firstChampId = this.state.allDungeonStakes.find(ds => ds.owner === this.walletddress).tokenId;
         console.log("claiming rewards for champion " + firstChampId);
         const estimatedGas = await this.writeContract.estimateGas.claimRewards(firstChampId, unstake);
         const doubleGas = estimatedGas.add(estimatedGas);
 
         console.log(await this.writeContract.claimRewards(firstChampId, unstake, { gasLimit: doubleGas }));
+    }
+
+    showChampionInfo(champId) {
+        if (!this.allChamps) {
+            return null;
+        }
+
+        const champ = this.allChamps[champId];
+        const justKeys = Object.keys(champ);
+        const res = justKeys.slice(justKeys.length / 2);
+        const betterRes = res.map(r => {
+            if (r === "level") {
+                return r + " : " + levels[parseInt(champ[r])];
+            }
+            return r + " : " + champ[r];
+        })
+        return (
+            <div style={{ margin: '20px' }}>
+                champ id : {champId}
+                {betterRes.map((x, j) => <div key={j}>{x}</div>)}
+            </div>
+        )
     }
 
     render() {
@@ -170,25 +211,20 @@ export default class App extends React.Component {
                     <button type="button" className="btn btn-dark" onClick={() => this.goToDungeon()} style={{ height: '8vh', width: '40vw' }}>go to dungeon</button>
                     <button type="button" className="btn btn-dark" onClick={() => this.claimRewards(false)} style={{ height: '8vh', width: '40vw' }}>claim rewards only</button>
                     <button type="button" className="btn btn-dark" onClick={() => this.claimRewards(true)} style={{ height: '8vh', width: '40vw' }}>claim rewards and unstake</button>
-                    <p>You have {this.state.champBalance} champs!</p>
+                    <p>You have {this.state.champBalance} champs in your wallet!</p>
                     {this.state.champs &&
                         <div>
-                            {this.state.champs.map((c, i) => {
-                                const justKeys = Object.keys(c);
-                                const res = justKeys.slice(justKeys.length / 2);
-                                const betterRes = res.map(r => {
-                                    if (r === "level") {
-                                        return r + " : " + levels[parseInt(c[r])];
-                                    }
-                                    return r + " : " + c[r];
-                                })
-                                return (
-                                    <div key={i} style={{ margin: '20px' }}>
-                                        champ id : {this.state.champIds[i]}
-                                        {betterRes.map((x, j) => <div key={j}>{x}</div>)}
-                                    </div>
-                                )
-                            })}
+                            {this.state.champs.map((c, i) => 
+                                this.showChampionInfo(this.state.champIds[i])
+                            )}
+                        </div>
+                    }
+                    {this.state.myDungeonStakes &&
+                        <div>
+                            <p>You have {this.state.myDungeonStakes.length} champs in the dungeon!</p>
+                            {this.state.myDungeonStakes.map((ds) => 
+                                this.showChampionInfo(ds.tokenId)
+                            )}
                         </div>
                     }
                 </header>
