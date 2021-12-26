@@ -175,6 +175,9 @@ export default class App extends React.Component {
     async getCoinBalance() {
         const myCoinBalance = await this.coinReadContract.balanceOf(this.walletddress);
         const balStr = myCoinBalance.toString();
+        if (balStr === '0') {
+            return 0;
+        }
         const realTing = balStr.substring(0, balStr.length - 18);
         return realTing;
     }
@@ -238,6 +241,6 @@ export default class App extends React.Component {
 }
 
 
-const contractAddress = "0xCa115285a7647b876E5973Ffd82D8B2775dd2Abc";
+const contractAddress = "0x8F3c9734f7cb884A9e624700742b93951e37c26B";
 // const contractAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
-const coinContractAddress = "0xa13a5692FCcC06A7E2b4f380d7BF3aeF96aaDEa2";
+const coinContractAddress = "0xf4F75e37Ed180F0A7D6B8023173B097686536f92";

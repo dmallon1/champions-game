@@ -244,7 +244,7 @@ contract ChampionGame is ERC721URIStorage, Ownable {
         );
 
         uint256 owed = (block.timestamp - dungeonStake.value) *
-            DAILY_CCOIN_RATE;
+            DAILY_CCOIN_RATE / 1 days;
 
         championCoin.mint(msg.sender, owed);
 
