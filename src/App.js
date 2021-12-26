@@ -2,6 +2,7 @@ import './App.css';
 import { ethers } from "ethers";
 import React from 'react';
 import { abi } from './contractInterface';
+import { coinAbi } from './coinContractInterface';
 const zeroAddress = "0x0000000000000000000000000000000000000000";
 const levels = ["common",
     "uncommon",
@@ -14,12 +15,13 @@ export default class App extends React.Component {
         super(props);
         this.state = {
             champBalance: '~',
+            coinBalance: '~',
             champs: null,
             champIds: null,
             allDungeonStakes: null,
             myDungeonStakes: null,
             showAddEther: false,
-            yourWallet: ""
+            myWallet: ""
         }
 
         this.showChampionInfo = this.showChampionInfo.bind(this);
@@ -51,8 +53,7 @@ export default class App extends React.Component {
         // Connect to the contract
         this.readContract = new ethers.Contract(contractAddress, abi, this.provider);
         this.writeContract = this.readContract.connect(signer);
-        // console.log(await readContract.symbol());
-
+        this.coinReadContract = new ethers.Contract(coinContractAddress, coinAbi, this.provider);
 
         this.refreshApp();
 
@@ -69,19 +70,18 @@ export default class App extends React.Component {
 
     async refreshApp() {
         const { chainId } = await this.provider.getNetwork();
+        const totalTokens = await this.readContract.minted();
+        const myCoinBalance = await this.getCoinBalance();
 
         this.readContract.balanceOf(this.walletddress).then((champBalance) =>
-            this.setState({ champBalance: champBalance.toNumber(), showAddEther: chainId === 31337, yourWallet: this.walletddress })
+            this.setState({ champBalance: champBalance.toNumber() })
         );
 
-        this.ownerToChampionIds = await this.getOwnerToChampionIds(this.readContract);
+        this.ownerToChampionIds = await this.getOwnerToChampionIds(totalTokens);
 
-        await this.getAllChampions();
+        await this.getAllChampions(totalTokens);
 
-        // TODO: do something with the dungeon stakes
-        // this.dungeonStakes = await this.getDungeonStakes();
-        this.refreshDungeonStakes();
-        // console.log(this.dungeonStakes);
+        this.refreshDungeonStakes(totalTokens);
 
         const proms = []
         const champIds = []
@@ -90,10 +90,10 @@ export default class App extends React.Component {
                 proms.push(this.readContract.champions(c));
                 champIds.push(c);
             });
-            Promise.all(proms).then(c => {
-                this.setState({ champs: c, champIds: champIds });
-            });
         }
+        Promise.all(proms).then(c => {
+            this.setState({ champs: c, champIds: champIds, showAddEther: chainId === 31337, myWallet: this.walletddress, coinBalance: myCoinBalance });
+        });
     }
 
     async mint() {
@@ -103,10 +103,6 @@ export default class App extends React.Component {
         const doubleGas = estimatedGas.add(estimatedGas);
 
         console.log(await this.writeContract.mint(signer.getAddress(), { gasLimit: doubleGas }));
-
-        // this is not gonna be ready here becasue it's the transaction itself that is submitted,
-        // it's not guaranteed to be done, would have to listen for that or something, that would probbaly be ideal
-        // this.refreshApp();
     }
 
     async addEther() {
@@ -120,11 +116,10 @@ export default class App extends React.Component {
         console.log(tx);
     }
 
-    async getOwnerToChampionIds(readContract) {
-        const totalTokens = await readContract.minted();
+    async getOwnerToChampionIds(totalTokens) {
         const ownerToChampionIds = {}
         for (let i = 0; i < totalTokens; i++) {
-            const owner = await readContract.ownerOf(i);
+            const owner = await this.readContract.ownerOf(i);
             if (ownerToChampionIds[owner] === undefined) {
                 ownerToChampionIds[owner] = []
             }
@@ -133,8 +128,7 @@ export default class App extends React.Component {
         return ownerToChampionIds;
     }
 
-    async getAllChampions() {
-        const totalTokens = await this.readContract.minted();
+    async getAllChampions(totalTokens) {
         const proms = [];
         for (let i = 0; i < totalTokens; i++) {
             proms.push(this.readContract.champions(i));
@@ -142,8 +136,7 @@ export default class App extends React.Component {
         Promise.all(proms).then(c => this.allChamps = c);
     }
 
-    async refreshDungeonStakes() {
-        const totalTokens = await this.readContract.minted();
+    async refreshDungeonStakes(totalTokens) {
         const dungeonStakes = []
         const myDungeonStakes = []
         for (let i = 0; i < totalTokens; i++) {
@@ -168,12 +161,22 @@ export default class App extends React.Component {
     }
 
     async claimRewards(unstake) {
-        const firstChampId = this.state.allDungeonStakes.find(ds => ds.owner === this.walletddress).tokenId;
+        if (this.state.myDungeonStakes.length === 0) {
+            return;
+        }
+        const firstChampId = this.state.myDungeonStakes[0].tokenId;
         console.log("claiming rewards for champion " + firstChampId);
         const estimatedGas = await this.writeContract.estimateGas.claimRewards(firstChampId, unstake);
         const doubleGas = estimatedGas.add(estimatedGas);
 
         console.log(await this.writeContract.claimRewards(firstChampId, unstake, { gasLimit: doubleGas }));
+    }
+
+    async getCoinBalance() {
+        const myCoinBalance = await this.coinReadContract.balanceOf(this.walletddress);
+        const balStr = myCoinBalance.toString();
+        const realTing = balStr.substring(0, balStr.length - 18);
+        return realTing;
     }
 
     showChampionInfo(champId) {
@@ -205,12 +208,13 @@ export default class App extends React.Component {
                     <h1>Champions Game</h1>
                     <p>game contract: {contractAddress}</p>
                     <p>coin contract: {coinContractAddress}</p>
-                    <p>your wallet: {this.state.yourWallet}</p>
+                    <p>your wallet: {this.state.myWallet}</p>
                     {this.state.showAddEther && <button type="button" className="btn btn-dark" onClick={() => this.addEther()} style={{ height: '8vh', width: '40vw' }}>add ether</button>}
                     <button type="button" className="btn btn-dark" onClick={() => this.mint()} style={{ height: '8vh', width: '40vw' }}>mint</button>
                     <button type="button" className="btn btn-dark" onClick={() => this.goToDungeon()} style={{ height: '8vh', width: '40vw' }}>go to dungeon</button>
                     <button type="button" className="btn btn-dark" onClick={() => this.claimRewards(false)} style={{ height: '8vh', width: '40vw' }}>claim rewards only</button>
                     <button type="button" className="btn btn-dark" onClick={() => this.claimRewards(true)} style={{ height: '8vh', width: '40vw' }}>claim rewards and unstake</button>
+                    <p>You have {this.state.coinBalance} champion coins in your wallet!</p>
                     <p>You have {this.state.champBalance} champs in your wallet!</p>
                     {this.state.champs &&
                         <div>
