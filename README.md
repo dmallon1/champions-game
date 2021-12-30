@@ -1,6 +1,15 @@
 # champions-game
 where champions are born
 
+## thoughts
+Would be great to have time based and level based things to unlock more characters and armor and stuff, and have some
+of that built into the v1 game. Yeah like only 10k every 24 hours or something but also like 
+- a combination of time and frequency
+    - 10k total supply
+    - 1k or 24 hours
+        ex: someone can't mint them all faster than 1 day, basically a cooldown period
+    - staking can begin right away
+
 ## Steps for running locally
 1. Start local ethereum node with `npx hardhat node`
 2. in a separate window, run deploy script for champions game `npx hardhat run --network localhost scripts/deploy.js`

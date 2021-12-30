@@ -3,14 +3,11 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "./ChampionCoin.sol";
 
 contract ChampionGame is ERC721URIStorage, Ownable {
-    using Counters for Counters.Counter;
-    Counters.Counter private _tokenIds;
     // number of tokens have been minted so far
     uint16 public minted;
     uint256 public constant DAILY_CCOIN_RATE = 10000 ether;
@@ -18,7 +15,7 @@ contract ChampionGame is ERC721URIStorage, Ownable {
 
     uint256 public totalSupply = 1000000;
     address public admin;
-    enum Level {
+    enum Rank {
         COMMON,
         UNCOMMON,
         RARE,
@@ -32,17 +29,15 @@ contract ChampionGame is ERC721URIStorage, Ownable {
 
     mapping(address => bool) public auth;
     struct Champion {
-        uint8 head;
+        uint8 helmet;
+        uint8 ears;
         uint8 body;
+        uint8 chest;
         uint8 mainhand;
         uint8 offhand;
-        // uint8 hands;
-        // uint8 boots;
-        // uint8 mastery
-        // uint8 stamina
-        // uint8 agility
-        // uint8 equipment
-        Level level;
+        uint8 legs;
+        uint8 feet;
+        Rank rank;
     }
 
     struct DungeonStake {
@@ -56,16 +51,14 @@ contract ChampionGame is ERC721URIStorage, Ownable {
     ChampionCoin championCoin;
 
     // list of probabilities for each trait type
-    // 0 - 9 are associated with Sheep
-    uint8[][4] public rarities;
+    uint8[][9] public rarities;
     // list of aliases for Walker's Alias algorithm
-    // 0 - 9 are associated with Sheep
-    uint8[][4] public aliases;
+    uint8[][9] public aliases;
 
     constructor(address _ccoin) ERC721("Champions Game", "CGAME") {
         championCoin = ChampionCoin(_ccoin);
 
-        // I know this looks weird but it saves users gas by making lookup O(1)
+        // TODO: fill in rest of attributes  
         // A.J. Walker's Alias Algorithm
         // head
         rarities[0] = [15, 50, 200, 250, 255];
@@ -266,16 +259,23 @@ contract ChampionGame is ERC721URIStorage, Ownable {
         view
         returns (Champion memory t)
     {
-        uint8 shift = 0;
         seed >>= 16;
-        t.head = selectTrait(uint16(seed & 0xFFFF), 0 + shift);
+        t.helmet = selectTrait(uint16(seed & 0xFFFF), 0);
         seed >>= 16;
-        t.body = selectTrait(uint16(seed & 0xFFFF), 1 + shift);
+        t.ears = selectTrait(uint16(seed & 0xFFFF), 1);
         seed >>= 16;
-        t.mainhand = selectTrait(uint16(seed & 0xFFFF), 2 + shift);
+        t.body = selectTrait(uint16(seed & 0xFFFF), 2);
         seed >>= 16;
-        t.offhand = selectTrait(uint16(seed & 0xFFFF), 3 + shift);
-        t.level = Level.COMMON;
+        t.chest = selectTrait(uint16(seed & 0xFFFF), 3);
+        seed >>= 16;
+        t.mainhand = selectTrait(uint16(seed & 0xFFFF), 4);
+        seed >>= 16;
+        t.offhand = selectTrait(uint16(seed & 0xFFFF), 5);
+        seed >>= 16;
+        t.legs = selectTrait(uint16(seed & 0xFFFF), 6);
+        seed >>= 16;
+        t.feet = selectTrait(uint16(seed & 0xFFFF), 7);
+        t.rank = Rank.COMMON;
     }
 
     /**
@@ -306,11 +306,15 @@ contract ChampionGame is ERC721URIStorage, Ownable {
             uint256(
                 keccak256(
                     abi.encodePacked(
-                        s.head,
+                        s.helmet,
+                        s.ears,
                         s.body,
+                        s.chest,
                         s.mainhand,
                         s.offhand,
-                        s.level
+                        s.legs,
+                        s.feet,
+                        s.rank
                     )
                 )
             );
@@ -353,5 +357,9 @@ contract ChampionGame is ERC721URIStorage, Ownable {
 
         // We'll use the last caller hash to add entropy to next caller
         entropySauce = keccak256(abi.encodePacked(acc, block.coinbase));
+    }
+
+    function getChampions(uint256 tokenId) external view returns (Champion memory) {
+        return champions[tokenId];
     }
 }
