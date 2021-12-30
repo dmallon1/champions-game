@@ -14,6 +14,11 @@ async function main() {
 
     console.log("coin contract deployed to address:", coinContract.address);
     console.log("game contract deployed to address:", championGameToken.address);
+
+    const traits = await ethers.getContractFactory("Traits");
+    const traitsContract = await traits.deploy();
+    traitsContract.setChampionGame(championGameToken.address);
+    console.log("traits contract deployed to address:", traitsContract.address);
 }
 
 main()

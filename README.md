@@ -27,6 +27,11 @@ latest ropsten
 coin contract deployed to address: 0xa13a5692FCcC06A7E2b4f380d7BF3aeF96aaDEa2
 game contract deployed to address: 0xCa115285a7647b876E5973Ffd82D8B2775dd2Abc
 
+later ropsten - 2021/12/30
+coin contract deployed to address: 0x7675d8598F64F2A593AAFaaF9aF4F79104e9DEE2
+game contract deployed to address: 0x27789d83E05eA96F6B3c44B1F4f094C2a72F938b
+traits contract deployed to address: 0x84B42ae67ccb215bAE6e98985f51479b00a02F06
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

@@ -3,6 +3,7 @@ import { ethers } from "ethers";
 import React from 'react';
 import { abi } from './contractInterface';
 import { coinAbi } from './coinContractInterface';
+import { traitAbi } from './traitContractInterface';
 const zeroAddress = "0x0000000000000000000000000000000000000000";
 const levels = ["common",
     "uncommon",
@@ -54,6 +55,8 @@ export default class App extends React.Component {
         this.readContract = new ethers.Contract(contractAddress, abi, this.provider);
         this.writeContract = this.readContract.connect(signer);
         this.coinReadContract = new ethers.Contract(coinContractAddress, coinAbi, this.provider);
+        this.traitReadContract = new ethers.Contract(traitsContractAddress, traitAbi, this.provider);
+        this.traitWriteContract = this.traitReadContract.connect(signer);
 
         this.refreshApp();
 
@@ -204,6 +207,14 @@ export default class App extends React.Component {
         )
     }
 
+    async uploadImage() {
+        this.traitWriteContract.uploadTraits(0, [0], [{name:"face", png:"iVBORw0KGgoAAAANSUhEUgAAACAAAAAgAgMAAAAOFJJnAAAADFBMVEUAAADesC+ygyzp4iXM8PRTAAAAAXRSTlMAQObYZgAAABVJREFUGNNjGDyABcbQhTE4GAYcAAAgKAA6oPTpgwAAAABJRU5ErkJggg=="}]);
+    }
+
+    async readTraitData() {
+        console.log(await this.traitReadContract.traitData(0,1));
+    }
+
     render() {
         return (
             <div className="App" >
@@ -217,6 +228,8 @@ export default class App extends React.Component {
                     <button type="button" className="btn btn-dark" onClick={() => this.goToDungeon()} style={{ height: '8vh', width: '40vw' }}>go to dungeon</button>
                     <button type="button" className="btn btn-dark" onClick={() => this.claimRewards(false)} style={{ height: '8vh', width: '40vw' }}>claim rewards only</button>
                     <button type="button" className="btn btn-dark" onClick={() => this.claimRewards(true)} style={{ height: '8vh', width: '40vw' }}>claim rewards and unstake</button>
+                    <button type="button" className="btn btn-dark" onClick={() => this.uploadImage()} style={{ height: '8vh', width: '40vw' }}>upload image</button>
+                    <button type="button" className="btn btn-dark" onClick={() => this.readTraitData()} style={{ height: '8vh', width: '40vw' }}>read image data</button>
                     <p>You have {this.state.coinBalance} champion coins in your wallet!</p>
                     <p>You have {this.state.champBalance} champs in your wallet!</p>
                     {this.state.champs &&
@@ -244,3 +257,4 @@ export default class App extends React.Component {
 const contractAddress = "0x8F3c9734f7cb884A9e624700742b93951e37c26B";
 // const contractAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
 const coinContractAddress = "0xf4F75e37Ed180F0A7D6B8023173B097686536f92";
+const traitsContractAddress = "0x84B42ae67ccb215bAE6e98985f51479b00a02F06";
