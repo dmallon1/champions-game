@@ -3,12 +3,38 @@ where champions are born
 
 ## thoughts
 Would be great to have time based and level based things to unlock more characters and armor and stuff, and have some
-of that built into the v1 game. Yeah like only 10k every 24 hours or something but also like 
+of that built into the v1 game. Yeah like only 10k every 24 hours or something
 - a combination of time and frequency
     - 10k total supply
     - 1k or 24 hours
         ex: someone can't mint them all faster than 1 day, basically a cooldown period
     - staking can begin right away
+- literally easier to just charge a small amount than rate limit, like .01 or .02 eth
+
+## Story
+In a dark corner of the metaverse, Champions Game is born. A 100% on chain nft game where players can mint their own
+unique champion, stake it in the dungeon to earn $CCOIN (maybe find a better name here), and battle other players to level up and earn rewards.
+
+[need some leveling system]
+Phase 1
+Minting
+Dungeon
+Leveling Up (pay coins to level up)
+
+Phase 2
+Battles
+
+Phase 3
+Weapon drops
+
+Champions Game is inspired by other games like it (wolf.game, ether orcs) but we wanted to make a game with a different
+flavor.
+
+Champions game will launch with the dungeon but we will be building out a pvp bounty system where players can
+
+We also plan on building a dao and treasury around the CCOIN. Users will be able to purchase $CCOIN in exchange for
+eth or usdc. That money will go into the treasury and help regulate the price of the coin. Users will also be able to
+earn even more $ccoin by providing liquitidy and staking those liquidity tokens in exchange for more $CCOIN.
 
 ## Steps for running locally
 1. Start local ethereum node with `npx hardhat node`
@@ -20,8 +46,6 @@ of that built into the v1 game. Yeah like only 10k every 24 hours or something b
 ## Troubleshooting
 If you run into the issue with metamask where it says the nonce is the wrong number.
 https://medium.com/@thelasthash/solved-nonce-too-high-error-with-metamask-and-hardhat-adc66f092cd
-
-TODO: add events and listenting to those events to know when to refresh the app
 
 latest ropsten
 coin contract deployed to address: 0xa13a5692FCcC06A7E2b4f380d7BF3aeF96aaDEa2

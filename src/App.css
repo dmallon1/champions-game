@@ -2,6 +2,17 @@
   text-align: center;
 }
 
+body {
+    background-image: url(assets/castle.jpg);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+}
+
+.half-black {
+    background: rgba(0, 0, 0, 0.75);
+  }
+
 .App-logo {
   height: 40vmin;
   pointer-events: none;
@@ -14,8 +25,8 @@
 }
 
 .App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+  /* background-color: #282c34; */
+  /* min-height: 80vh; */
   display: flex;
   flex-direction: column;
   align-items: center;

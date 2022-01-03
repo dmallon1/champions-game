@@ -58,7 +58,7 @@ contract ChampionGame is ERC721URIStorage, Ownable {
     constructor(address _ccoin) ERC721("Champions Game", "CGAME") {
         championCoin = ChampionCoin(_ccoin);
 
-        // TODO: fill in rest of attributes  
+        // TODO: fill in rest of attributes
         // A.J. Walker's Alias Algorithm
         // head
         rarities[0] = [15, 50, 200, 250, 255];
@@ -232,12 +232,12 @@ contract ChampionGame is ERC721URIStorage, Ownable {
             "you are not the owner of this champion"
         );
         require(
-            block.timestamp - dungeonStake.value < MINIMUM_TO_EXIT,
+            block.timestamp - dungeonStake.value > MINIMUM_TO_EXIT,
             "not enough time has passed to claim rewards"
         );
 
-        uint256 owed = (block.timestamp - dungeonStake.value) *
-            DAILY_CCOIN_RATE / 1 days;
+        uint256 owed = ((block.timestamp - dungeonStake.value) *
+            DAILY_CCOIN_RATE) / 1 days;
 
         championCoin.mint(msg.sender, owed);
 
@@ -359,7 +359,11 @@ contract ChampionGame is ERC721URIStorage, Ownable {
         entropySauce = keccak256(abi.encodePacked(acc, block.coinbase));
     }
 
-    function getChampions(uint256 tokenId) external view returns (Champion memory) {
+    function getChampions(uint256 tokenId)
+        external
+        view
+        returns (Champion memory)
+    {
         return champions[tokenId];
     }
 }
