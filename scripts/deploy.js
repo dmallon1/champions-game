@@ -21,7 +21,15 @@ async function main() {
     console.log("traits contract deployed to address:", traitsContract.address);
 }
 
+async function interactWithContract() {
+    const championsGame = await ethers.getContractFactory("ChampionGame");
+    const contract = await championsGame.attach("0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512");
+
+    console.log(await contract.dungeon(5));
+}
+
 main()
+    // interactWithContract()
     .then(() => process.exit(0))
     .catch((error) => {
         console.error(error)
