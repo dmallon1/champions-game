@@ -27,14 +27,14 @@ Dungeons
 
 Phase 2
 "Season 1" released
--10 legendary NFT's will be avaiable to be bid on only using $CCOIN. The Auction will end when Season 1 finishes.
+-10 legendary NFT's will be avaiable to be bid on only using $CCOIN. The Auction will end when Season 1 finishes. (All coins spent on legendary champions will be burned)
 Bounty System "Season 1" released
 -Players can stake $CCOIN along side their NFT's marked with a bounty.
 -Players will not be able to see the NFT they are attacking, only the amount that is being staked.
 -Players can stake 5 coins, 50 coins, or 500 coins when they place a bounty on their NFT
 -A NFT marked with a bounty will be elligible to be attacked 4 times.
 -Each attacker must match 100% of the coins staked or risk their own champion.
--If an attacker risks their own champion and loses, that NFT will be burned and the defender will receieve newly minted coins to match their bounty.
+-If an attacker risks their own champion and loses, that NFT will be burned and the defender will receieve newly minted coins to match their bounty. (Champions will be expensive to mint early in the season after a big coin burning)
 -If the attacker wins they recieve the entire bounty pool
 -If the defense wins all four battles they will recieve 8x their orgnial staked.
 -The amount of inflated coins from season 1 will be capped at 500k.
