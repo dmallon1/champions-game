@@ -1,5 +1,5 @@
 # champions-game
-where champions are born
+Where champions are born
 
 ## thoughts
 Would be great to have time based and level based things to unlock more characters and armor and stuff, and have some
@@ -12,20 +12,44 @@ of that built into the v1 game. Yeah like only 10k every 24 hours or something
 - literally easier to just charge a small amount than rate limit, like .01 or .02 eth
 
 ## Story
+    
+    Deep within the metaverse, Champions plunder and clash for rewards. Champion Game allows indiduvals to stake their fight in the metaverse 100% on chain. Players will mint their own unique champion, empower it through strategic decision making, and battle to earn $CCOIN and exclusive rewards. 
+
 In a dark corner of the metaverse, Champions Game is born. A 100% on chain nft game where players can mint their own
 unique champion, stake it in the dungeon to earn $CCOIN (maybe find a better name here), and battle other players to level up and earn rewards.
 
 [need some leveling system]
+
 Phase 1
-Minting
-Dungeon
-Leveling Up (pay coins to level up)
+Sparring Pits
+-pay 10 $CCOIN to enter the sparing pits for 1 day (1 day = 1 level), after reaching level 30 the NFT can be burned to be increased to rare quality
+-each day staked has a small chance to grant a epic rarity stone that increases an NFT's rarity to epic, that can either be bought or sold
+Dungeons 
+-Rewards 1-15 $CCOIN per run 
+-Small chance for attribute upgrade
 
 Phase 2
-Battles
+"Season 1" released
+-10 legendary NFT's will be avaiable to be bid on only using $CCOIN. The Auction will end when Season 1 finishes.
+Bounty System "Season 1" released
+-Players can stake $CCOIN along side their NFT's marked with a bounty.
+-Players will not be able to see the NFT they are attacking, only the amount that is being staked.
+-Players can stake 5 coins, 50 coins, or 500 coins when they place a bounty on their NFT
+-A NFT marked with a bounty will be elligible to be attacked 4 times.
+-Each attacker must match 100% of the coins staked or risk their own champion.
+-If an attacker risks their own champion and loses, that NFT will be burned and the defender will receieve newly minted coins to match their bounty.
+-If the attacker wins they recieve the entire bounty pool
+-If the defense wins all four battles they will recieve 8x their orgnial staked.
+-The amount of inflated coins from season 1 will be capped at 500k.
 
 Phase 3
-Weapon drops
+"Season 2" released
+-reset inflated coins cap for bounty system
+-10 new legendary NFT's
+
+-"Raids" released
+-there are 5 legendary, 15 epic, and 500 rare weapons buried within the raid!
+-Good luck raiders!
 
 Champions Game is inspired by other games like it (wolf.game, ether orcs) but we wanted to make a game with a different
 flavor.
