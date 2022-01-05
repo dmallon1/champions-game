@@ -13,10 +13,7 @@ of that built into the v1 game. Yeah like only 10k every 24 hours or something
 
 ## Story
     
-    Deep within the metaverse, Champions plunder and clash for rewards. Champion Game allows indiduvals to stake their fight in the metaverse 100% on chain. Players will mint their own unique champion, empower it through strategic decision making, and battle to earn $CCOIN and exclusive rewards. 
-
-In a dark corner of the metaverse, Champions Game is born. A 100% on chain nft game where players can mint their own
-unique champion, stake it in the dungeon to earn $CCOIN (maybe find a better name here), and battle other players to level up and earn rewards.
+Deep within the metaverse, Champions plunder and clash for rewards. Champion Game allows indiduvals to stake their fight in the metaverse 100% on chain. Players will mint their own unique champion, empower it through strategic decision making, and battle to earn $CCOIN and exclusive rewards. 
 
 [need some leveling system]
 
