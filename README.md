@@ -64,6 +64,13 @@ earn even more $ccoin by providing liquitidy and staking those liquidity tokens 
 3. add wallet address from metamask to src/app.js
 4. go to localhost:3000
 
+## To verify on etherscan
+https://hardhat.org/plugins/nomiclabs-hardhat-etherscan.html
+
+`npx hardhat verify --network mainnet DEPLOYED_CONTRACT_ADDRESS`
+
+If there's an error you may need to use `npx hardhat clean`
+
 ## Troubleshooting
 If you run into the issue with metamask where it says the nonce is the wrong number.
 https://medium.com/@thelasthash/solved-nonce-too-high-error-with-metamask-and-hardhat-adc66f092cd
