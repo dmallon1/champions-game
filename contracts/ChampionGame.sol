@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "./ChampionCoin.sol";
@@ -13,8 +12,11 @@ contract ChampionGame is ERC721URIStorage, Ownable {
     uint256 public constant DAILY_CCOIN_RATE = 10000 ether;
     uint256 public constant MINIMUM_TO_EXIT = 2 days;
 
+    // not used anywhere
     uint256 public totalSupply = 1000000;
-    address public admin;
+    // never set
+    mapping(address => bool) public auth;
+
     enum Rank {
         COMMON,
         UNCOMMON,
@@ -22,12 +24,18 @@ contract ChampionGame is ERC721URIStorage, Ownable {
         EPIC,
         LEGENDARY
     }
-    mapping(uint256 => Champion) public champions; // id to champion stats
+    enum Location {
+        DUNGEON,
+        SPARRING_PITS
+    }
+
+    // keyed by champion ids
+    mapping(uint256 => Champion) public champions;
+    mapping(uint256 => Stake) public stakes;
+
     // used to ensure there are no duplicates
     mapping(uint256 => uint256) public existingCombinations;
-    mapping(uint256 => DungeonStake) public dungeon; // keeping track of tokens in dungeon
 
-    mapping(address => bool) public auth;
     struct Champion {
         uint8 helmet;
         uint8 ears;
@@ -40,10 +48,10 @@ contract ChampionGame is ERC721URIStorage, Ownable {
         Rank rank;
     }
 
-    struct DungeonStake {
+    struct Stake {
         address owner;
-        uint16 tokenId;
-        uint80 value;
+        uint80 timestamp;
+        Location location;
     }
 
     bytes32 internal entropySauce;
@@ -208,45 +216,45 @@ contract ChampionGame is ERC721URIStorage, Ownable {
         return generate(tokenId, random(seed));
     }
 
-    function goToDungeon(uint256 championId) external {
-        require(msg.sender == ownerOf(championId), "not yo champion");
+    function stakeChampion(uint256 championId, Location location) external {
+        require(_msgSender() == ownerOf(championId), "not yo champion");
 
-        transferFrom(msg.sender, address(this), championId);
-
-        dungeon[championId] = DungeonStake({
-            owner: msg.sender,
-            tokenId: uint16(championId),
-            value: uint80(block.timestamp)
+        stakes[championId] = Stake({
+            owner: _msgSender(),
+            timestamp: uint80(block.timestamp),
+            location: location
         });
+
+        transferFrom(_msgSender(), address(this), championId);
     }
 
     function claimRewards(uint256 championId, bool unstake) external {
-        DungeonStake memory dungeonStake = dungeon[championId];
+        Stake memory stake = stakes[championId];
 
         require(
-            dungeonStake.owner != address(0),
+            stake.owner != address(0),
             "this champion isn't in the dungeon"
         );
         require(
-            dungeonStake.owner == msg.sender,
+            stake.owner == _msgSender(),
             "you are not the owner of this champion"
         );
         require(
-            block.timestamp - dungeonStake.value > MINIMUM_TO_EXIT,
+            block.timestamp - stake.timestamp > MINIMUM_TO_EXIT,
             "not enough time has passed to claim rewards"
         );
 
-        uint256 owed = ((block.timestamp - dungeonStake.value) *
+        uint256 owed = ((block.timestamp - stake.timestamp) *
             DAILY_CCOIN_RATE) / 1 days;
 
-        championCoin.mint(msg.sender, owed);
-
         if (unstake) {
-            _transfer(address(this), msg.sender, championId);
-            delete dungeon[championId];
+            delete stakes[championId];
+            _transfer(address(this), _msgSender(), championId);
         } else {
-            dungeon[championId].value = uint80(block.timestamp);
+            stakes[championId].timestamp = uint80(block.timestamp);
         }
+
+        championCoin.mint(_msgSender(), owed);
     }
 
     /**
@@ -342,15 +350,16 @@ contract ChampionGame is ERC721URIStorage, Ownable {
     /**
     MODIFIERS
     */
+    // TODO: should investigate whether we actually need this
     modifier noCheaters() {
         uint256 size = 0;
-        address acc = msg.sender;
+        address acc = _msgSender();
         assembly {
             size := extcodesize(acc)
         }
 
         require(
-            auth[msg.sender] || (msg.sender == tx.origin && size == 0),
+            auth[_msgSender()] || (_msgSender() == tx.origin && size == 0),
             "you're trying to cheat!"
         );
         _;
