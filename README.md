@@ -15,8 +15,6 @@ of that built into the v1 game. Yeah like only 10k every 24 hours or something
     
 Deep within the metaverse, Champions plunder and clash for rewards. Champion Game allows indiduvals to stake their fight in the metaverse 100% on chain. Players will mint their own unique champion, empower it through strategic decision making, and battle to earn $CCOIN and exclusive rewards. 
 
-[need some leveling system]
-
 ### Phase 1
 #### Sparring Pits
 - pay 10 $CCOIN to enter the sparing pits for 1 day (1 day = 1 level), after reaching level 30 the NFT can be burned to be increased to rare quality
@@ -51,11 +49,9 @@ Bounty System "Season 1" released
 Champions Game is inspired by other games like it (wolf.game, ether orcs) but we wanted to make a game with a different
 flavor.
 
-Champions game will launch with the dungeon but we will be building out a pvp bounty system where players can
-
-We also plan on building a dao and treasury around the CCOIN. Users will be able to purchase $CCOIN in exchange for
+We also plan on building a dao and treasury around the $CCOIN. Users will be able to purchase $CCOIN in exchange for
 eth or usdc. That money will go into the treasury and help regulate the price of the coin. Users will also be able to
-earn even more $ccoin by providing liquitidy and staking those liquidity tokens in exchange for more $CCOIN.
+earn even more $CCOIN by providing liquitidy and staking those liquidity tokens in exchange for more $CCOIN.
 
 ## Steps for running locally
 1. Start local ethereum node with `npx hardhat node`
