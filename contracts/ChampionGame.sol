@@ -182,11 +182,15 @@ contract ChampionGame is ERC721URIStorage, Ownable {
         ];
     }
 
-    function mint(address recipient)
-        external
-        noCheaters
-        returns (uint256 newItemId)
-    {
+    /*
+               _                        _    __                  _   _
+      _____  _| |_ ___ _ __ _ __   __ _| |  / _|_   _ _ __   ___| |_(_) ___  _ __  ___
+     / _ \ \/ / __/ _ \ '__| '_ \ / _` | | | |_| | | | '_ \ / __| __| |/ _ \| '_ \/ __|
+    |  __/>  <| ||  __/ |  | | | | (_| | | |  _| |_| | | | | (__| |_| | (_) | | | \__ \
+     \___/_/\_\\__\___|_|  |_| |_|\__,_|_| |_|  \__,_|_| |_|\___|\__|_|\___/|_| |_|___/
+    */
+
+    function mint(address recipient) external returns (uint256 newItemId) {
         // validation
         // does it cost anything? -> do you have enough?
         // make sure there is still supply
@@ -195,25 +199,6 @@ contract ChampionGame is ERC721URIStorage, Ownable {
         uint256 seed = random(minted);
         generate(minted, seed);
         _mint(recipient, newItemId);
-    }
-
-    /**
-     * generates traits for a specific token, checking to make sure it's unique
-     * @param tokenId the id of the token to generate traits for
-     * @param seed a pseudorandom 256 bit number to derive traits from
-     * @return t - a struct of traits for the given token ID
-     */
-    function generate(uint256 tokenId, uint256 seed)
-        internal
-        returns (Champion memory t)
-    {
-        t = selectTraits(seed);
-        if (existingCombinations[structToHash(t)] == 0) {
-            champions[tokenId] = t;
-            existingCombinations[structToHash(t)] = tokenId;
-            return t;
-        }
-        return generate(tokenId, random(seed));
     }
 
     function stakeChampion(uint256 championId, Location location) external {
@@ -255,6 +240,41 @@ contract ChampionGame is ERC721URIStorage, Ownable {
         }
 
         championCoin.mint(_msgSender(), owed);
+    }
+
+    function getChampions(uint256 tokenId)
+        external
+        view
+        returns (Champion memory)
+    {
+        return champions[tokenId];
+    }
+
+    /*
+         _       _                        _    __                  _   _
+    (_)_ __ | |_ ___ _ __ _ __   __ _| |  / _|_   _ _ __   ___| |_(_) ___  _ __  ___
+    | | '_ \| __/ _ \ '__| '_ \ / _` | | | |_| | | | '_ \ / __| __| |/ _ \| '_ \/ __|
+    | | | | | ||  __/ |  | | | | (_| | | |  _| |_| | | | | (__| |_| | (_) | | | \__ \
+    |_|_| |_|\__\___|_|  |_| |_|\__,_|_| |_|  \__,_|_| |_|\___|\__|_|\___/|_| |_|___/
+    */
+
+    /**
+     * generates traits for a specific token, checking to make sure it's unique
+     * @param tokenId the id of the token to generate traits for
+     * @param seed a pseudorandom 256 bit number to derive traits from
+     * @return t - a struct of traits for the given token ID
+     */
+    function generate(uint256 tokenId, uint256 seed)
+        internal
+        returns (Champion memory t)
+    {
+        t = selectTraits(seed);
+        if (existingCombinations[structToHash(t)] == 0) {
+            champions[tokenId] = t;
+            existingCombinations[structToHash(t)] = tokenId;
+            return t;
+        }
+        return generate(tokenId, random(seed));
     }
 
     /**
@@ -345,34 +365,5 @@ contract ChampionGame is ERC721URIStorage, Ownable {
                     )
                 )
             );
-    }
-
-    /**
-    MODIFIERS
-    */
-    // TODO: should investigate whether we actually need this
-    modifier noCheaters() {
-        uint256 size = 0;
-        address acc = _msgSender();
-        assembly {
-            size := extcodesize(acc)
-        }
-
-        require(
-            auth[_msgSender()] || (_msgSender() == tx.origin && size == 0),
-            "you're trying to cheat!"
-        );
-        _;
-
-        // We'll use the last caller hash to add entropy to next caller
-        entropySauce = keccak256(abi.encodePacked(acc, block.coinbase));
-    }
-
-    function getChampions(uint256 tokenId)
-        external
-        view
-        returns (Champion memory)
-    {
-        return champions[tokenId];
     }
 }
