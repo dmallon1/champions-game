@@ -106,10 +106,11 @@ export default class App extends React.Component {
     async mint() {
         const signer = this.provider.getSigner();
 
-        const estimatedGas = await this.writeContract.estimateGas.mint(signer.getAddress());
+        // TODO: update this to not be hardcoded
+        const estimatedGas = await this.writeContract.estimateGas.mint(1, { value: ethers.utils.parseEther("0.02") });
         const doubleGas = estimatedGas.add(estimatedGas);
 
-        console.log(await this.writeContract.mint(signer.getAddress(), { gasLimit: doubleGas }));
+        console.log(await this.writeContract.mint(1, { gasLimit: doubleGas, value: ethers.utils.parseEther("0.02") }));
     }
 
     async addEther() {
@@ -147,12 +148,12 @@ export default class App extends React.Component {
         const dungeonStakes = []
         const myDungeonStakes = []
         for (let i = 0; i < totalTokens; i++) {
-            const ds = await this.readContract.dungeon(i);
+            const ds = await this.readContract.stakes(i);
             if (ds.owner !== zeroAddress) {
                 dungeonStakes.push(ds);
             }
             if (ds.owner === this.walletddress) {
-                myDungeonStakes.push(ds);
+                myDungeonStakes.push({ id: i, stake: ds });
             }
         }
         this.setState({ allDungeonStakes: dungeonStakes, myDungeonStakes: myDungeonStakes });
@@ -161,17 +162,18 @@ export default class App extends React.Component {
     async goToDungeon() {
         const firstChampId = this.state.champIds[0];
         console.log("sending champion " + firstChampId + " to dungeon");
-        const estimatedGas = await this.writeContract.estimateGas.goToDungeon(firstChampId);
+        const estimatedGas = await this.writeContract.estimateGas.stakeChampion(firstChampId, 0);
         const doubleGas = estimatedGas.add(estimatedGas);
 
-        console.log(await this.writeContract.goToDungeon(firstChampId, { gasLimit: doubleGas }));
+        // TODO: update with location
+        console.log(await this.writeContract.stakeChampion(firstChampId, 0, { gasLimit: doubleGas }));
     }
 
     async claimRewards(unstake) {
         if (this.state.myDungeonStakes.length === 0) {
             return;
         }
-        const firstChampId = this.state.myDungeonStakes[0].tokenId;
+        const firstChampId = this.state.myDungeonStakes[0].id;
         console.log("claiming rewards for champion " + firstChampId);
         const estimatedGas = await this.writeContract.estimateGas.claimRewards(firstChampId, unstake);
         const doubleGas = estimatedGas.add(estimatedGas);
@@ -198,7 +200,7 @@ export default class App extends React.Component {
         const justKeys = Object.keys(champ);
         const res = justKeys.slice(justKeys.length / 2);
         const betterRes = res.map(r => {
-            if (r === "level") {
+            if (r === "rank") {
                 return r + " : " + levels[parseInt(champ[r])];
             }
             return r + " : " + champ[r];
@@ -248,7 +250,7 @@ export default class App extends React.Component {
                         <div>
                             <p>You have {this.state.myDungeonStakes.length} champs in the dungeon!</p>
                             {this.state.myDungeonStakes.map((ds) =>
-                                this.showChampionInfo(ds.tokenId)
+                                this.showChampionInfo(ds.id)
                             )}
                         </div>
                     }

@@ -1,6 +1,12 @@
 # champions-game
 Where champions are born
 
+## Code TODO
+1. Fully support sparring pits and dungeon [IN-PROGRESS]
+2. Create erc20 for epic rarity stone [TODO]
+3. Add concept of level [IN-PROGRESS]
+4. Update stats to no longer randomly generate and possible simplify them [IN-PROGRESS]
+
 ## thoughts
 Would be great to have time based and level based things to unlock more characters and armor and stuff, and have some
 of that built into the v1 game. Yeah like only 10k every 24 hours or something
@@ -12,15 +18,14 @@ of that built into the v1 game. Yeah like only 10k every 24 hours or something
 - literally easier to just charge a small amount than rate limit, like .01 or .02 eth
 
 ## Story
-    
-Deep within the metaverse, Champions plunder and clash for rewards. Champion Game allows indiduvals to stake their fight in the metaverse 100% on chain. Players will mint their own unique champion, empower it through strategic decision making, and battle to earn $CCOIN and exclusive rewards. 
+Deep within the metaverse, Champions plunder and clash for rewards. Champion Game allows indiduvals to stake their fight in the metaverse 100% on chain. Players will mint their own unique champion, empower it through strategic decision making, and battle to earn $CCOIN and exclusive rewards.
 
 ### Phase 1
 #### Sparring Pits
 - pay 10 $CCOIN to enter the sparing pits for 1 day (1 day = 1 level), after reaching level 30 the NFT can be burned to be increased to rare quality
 - each day staked has a small chance to grant a epic rarity stone that increases an NFT's rarity to epic, that can either be bought or sold
-#### Dungeons 
-- Rewards 1-15 $CCOIN per run 
+#### Dungeons
+- Rewards 1-15 $CCOIN per run
 - Small chance for attribute upgrade
 
 ### Phase 2
@@ -46,9 +51,7 @@ Bounty System "Season 1" released
 - there are 5 legendary, 15 epic, and 500 rare weapons buried within the raid!
 - Good luck raiders!
 
-Champions Game is inspired by other games like it (wolf.game, ether orcs) but we wanted to make a game with a different
-flavor.
-
+### Future future
 We also plan on building a dao and treasury around the $CCOIN. Users will be able to purchase $CCOIN in exchange for
 eth or usdc. That money will go into the treasury and help regulate the price of the coin. Users will also be able to
 earn even more $CCOIN by providing liquitidy and staking those liquidity tokens in exchange for more $CCOIN.

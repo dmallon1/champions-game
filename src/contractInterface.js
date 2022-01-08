@@ -119,6 +119,19 @@ export const abi = [
     },
     {
         "inputs": [],
+        "name": "MAX_SUPPLY",
+        "outputs": [
+            {
+                "internalType": "uint16",
+                "name": "",
+                "type": "uint16"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
         "name": "MINIMUM_TO_EXIT",
         "outputs": [
             {
@@ -132,12 +145,12 @@ export const abi = [
     },
     {
         "inputs": [],
-        "name": "admin",
+        "name": "MINT_COST",
         "outputs": [
             {
-                "internalType": "address",
+                "internalType": "uint256",
                 "name": "",
-                "type": "address"
+                "type": "uint256"
             }
         ],
         "stateMutability": "view",
@@ -189,25 +202,6 @@ export const abi = [
         "inputs": [
             {
                 "internalType": "address",
-                "name": "",
-                "type": "address"
-            }
-        ],
-        "name": "auth",
-        "outputs": [
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
                 "name": "owner",
                 "type": "address"
             }
@@ -218,6 +212,19 @@ export const abi = [
                 "internalType": "uint256",
                 "name": "",
                 "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "championCoin",
+        "outputs": [
+            {
+                "internalType": "contract ChampionCoin",
+                "name": "",
+                "type": "address"
             }
         ],
         "stateMutability": "view",
@@ -254,8 +261,13 @@ export const abi = [
                 "type": "uint8"
             },
             {
-                "internalType": "enum ChampionGame.Level",
+                "internalType": "uint8",
                 "name": "level",
+                "type": "uint8"
+            },
+            {
+                "internalType": "enum ChampionGame.Rank",
+                "name": "rank",
                 "type": "uint8"
             }
         ],
@@ -278,35 +290,6 @@ export const abi = [
         "name": "claimRewards",
         "outputs": [],
         "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "name": "dungeon",
-        "outputs": [
-            {
-                "internalType": "address",
-                "name": "owner",
-                "type": "address"
-            },
-            {
-                "internalType": "uint16",
-                "name": "tokenId",
-                "type": "uint16"
-            },
-            {
-                "internalType": "uint80",
-                "name": "value",
-                "type": "uint80"
-            }
-        ],
-        "stateMutability": "view",
         "type": "function"
     },
     {
@@ -351,13 +334,51 @@ export const abi = [
         "inputs": [
             {
                 "internalType": "uint256",
-                "name": "championId",
+                "name": "tokenId",
                 "type": "uint256"
             }
         ],
-        "name": "goToDungeon",
-        "outputs": [],
-        "stateMutability": "nonpayable",
+        "name": "getChampions",
+        "outputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "uint8",
+                        "name": "head",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "uint8",
+                        "name": "body",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "uint8",
+                        "name": "mainhand",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "uint8",
+                        "name": "offhand",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "uint8",
+                        "name": "level",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "enum ChampionGame.Rank",
+                        "name": "rank",
+                        "type": "uint8"
+                    }
+                ],
+                "internalType": "struct ChampionGame.Champion",
+                "name": "",
+                "type": "tuple"
+            }
+        ],
+        "stateMutability": "view",
         "type": "function"
     },
     {
@@ -387,9 +408,9 @@ export const abi = [
     {
         "inputs": [
             {
-                "internalType": "address",
-                "name": "recipient",
-                "type": "address"
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
             }
         ],
         "name": "mint",
@@ -400,7 +421,7 @@ export const abi = [
                 "type": "uint256"
             }
         ],
-        "stateMutability": "nonpayable",
+        "stateMutability": "payable",
         "type": "function"
     },
     {
@@ -564,6 +585,53 @@ export const abi = [
     {
         "inputs": [
             {
+                "internalType": "uint256",
+                "name": "championId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "enum ChampionGame.Location",
+                "name": "location",
+                "type": "uint8"
+            }
+        ],
+        "name": "stakeChampion",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "name": "stakes",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "owner",
+                "type": "address"
+            },
+            {
+                "internalType": "uint80",
+                "name": "timestamp",
+                "type": "uint80"
+            },
+            {
+                "internalType": "enum ChampionGame.Location",
+                "name": "location",
+                "type": "uint8"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
                 "internalType": "bytes4",
                 "name": "interfaceId",
                 "type": "bytes4"
@@ -613,19 +681,6 @@ export const abi = [
         "type": "function"
     },
     {
-        "inputs": [],
-        "name": "totalSupply",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
         "inputs": [
             {
                 "internalType": "address",
@@ -657,6 +712,13 @@ export const abi = [
             }
         ],
         "name": "transferOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "withdraw",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"

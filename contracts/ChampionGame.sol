@@ -7,15 +7,25 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "./ChampionCoin.sol";
 
 contract ChampionGame is ERC721URIStorage, Ownable {
+    uint256 public constant DAILY_CCOIN_RATE = 10000 ether;
+    uint256 public constant MINT_COST = .02 ether;
+    uint256 public constant MINIMUM_TO_EXIT = 1 days;
+    uint16 public constant MAX_SUPPLY = 10000;
+
     // number of tokens have been minted so far
     uint16 public minted;
-    uint256 public constant DAILY_CCOIN_RATE = 10000 ether;
-    uint256 public constant MINIMUM_TO_EXIT = 2 days;
 
-    // not used anywhere
-    uint256 public totalSupply = 1000000;
-    // never set
-    mapping(address => bool) public auth;
+    ChampionCoin public championCoin;
+
+    // list of probabilities for each trait type
+    uint8[][4] public rarities;
+    // list of aliases for Alias algorithm
+    uint8[][4] public aliases;
+
+    // keyed by champion ids
+    mapping(uint256 => Champion) public champions;
+    mapping(uint256 => Stake) public stakes;
+    mapping(uint256 => uint256) public existingCombinations;
 
     enum Rank {
         COMMON,
@@ -24,27 +34,18 @@ contract ChampionGame is ERC721URIStorage, Ownable {
         EPIC,
         LEGENDARY
     }
+
     enum Location {
         DUNGEON,
         SPARRING_PITS
     }
 
-    // keyed by champion ids
-    mapping(uint256 => Champion) public champions;
-    mapping(uint256 => Stake) public stakes;
-
-    // used to ensure there are no duplicates
-    mapping(uint256 => uint256) public existingCombinations;
-
     struct Champion {
-        uint8 helmet;
-        uint8 ears;
+        uint8 head;
         uint8 body;
-        uint8 chest;
         uint8 mainhand;
         uint8 offhand;
-        uint8 legs;
-        uint8 feet;
+        uint8 level;
         Rank rank;
     }
 
@@ -53,15 +54,6 @@ contract ChampionGame is ERC721URIStorage, Ownable {
         uint80 timestamp;
         Location location;
     }
-
-    bytes32 internal entropySauce;
-
-    ChampionCoin championCoin;
-
-    // list of probabilities for each trait type
-    uint8[][9] public rarities;
-    // list of aliases for Walker's Alias algorithm
-    uint8[][9] public aliases;
 
     constructor(address _ccoin) ERC721("Champions Game", "CGAME") {
         championCoin = ChampionCoin(_ccoin);
@@ -190,15 +182,29 @@ contract ChampionGame is ERC721URIStorage, Ownable {
      \___/_/\_\\__\___|_|  |_| |_|\__,_|_| |_|  \__,_|_| |_|\___|\__|_|\___/|_| |_|___/
     */
 
-    function mint(address recipient) external returns (uint256 newItemId) {
-        // validation
-        // does it cost anything? -> do you have enough?
-        // make sure there is still supply
+    // TODO: add bool stake
+    function mint(uint256 amount) external payable returns (uint256 newItemId) {
+        require(tx.origin == _msgSender(), "Only EOA");
+        require(
+            amount > 0 && amount <= 10,
+            "Invalid mint amount, must be between 1 and 10"
+        );
+        require(
+            amount * MINT_COST == msg.value,
+            "not enough ether, mint costs .02 eth"
+        );
+        require(
+            minted + amount <= MAX_SUPPLY,
+            "all champions have been minted"
+        );
 
-        newItemId = minted++;
-        uint256 seed = random(minted);
-        generate(minted, seed);
-        _mint(recipient, newItemId);
+        uint256 seed;
+        for (uint256 i = 0; i < amount; i++) {
+            newItemId = minted++;
+            seed = random(newItemId);
+            generate(newItemId, seed);
+            _mint(_msgSender(), newItemId);
+        }
     }
 
     function stakeChampion(uint256 championId, Location location) external {
@@ -250,6 +256,13 @@ contract ChampionGame is ERC721URIStorage, Ownable {
         return champions[tokenId];
     }
 
+    /**
+     * allows owner to withdraw funds from minting
+     */
+    function withdraw() external onlyOwner {
+        payable(owner()).transfer(address(this).balance);
+    }
+
     /*
          _       _                        _    __                  _   _
     (_)_ __ | |_ ___ _ __ _ __   __ _| |  / _|_   _ _ __   ___| |_(_) ___  _ __  ___
@@ -288,21 +301,15 @@ contract ChampionGame is ERC721URIStorage, Ownable {
         returns (Champion memory t)
     {
         seed >>= 16;
-        t.helmet = selectTrait(uint16(seed & 0xFFFF), 0);
+        t.head = selectTrait(uint16(seed & 0xFFFF), 0);
         seed >>= 16;
-        t.ears = selectTrait(uint16(seed & 0xFFFF), 1);
+        t.body = selectTrait(uint16(seed & 0xFFFF), 1);
         seed >>= 16;
-        t.body = selectTrait(uint16(seed & 0xFFFF), 2);
+        t.mainhand = selectTrait(uint16(seed & 0xFFFF), 2);
         seed >>= 16;
-        t.chest = selectTrait(uint16(seed & 0xFFFF), 3);
+        t.offhand = selectTrait(uint16(seed & 0xFFFF), 3);
         seed >>= 16;
-        t.mainhand = selectTrait(uint16(seed & 0xFFFF), 4);
-        seed >>= 16;
-        t.offhand = selectTrait(uint16(seed & 0xFFFF), 5);
-        seed >>= 16;
-        t.legs = selectTrait(uint16(seed & 0xFFFF), 6);
-        seed >>= 16;
-        t.feet = selectTrait(uint16(seed & 0xFFFF), 7);
+        t.level = 1;
         t.rank = Rank.COMMON;
     }
 
@@ -334,14 +341,11 @@ contract ChampionGame is ERC721URIStorage, Ownable {
             uint256(
                 keccak256(
                     abi.encodePacked(
-                        s.helmet,
-                        s.ears,
+                        s.head,
                         s.body,
-                        s.chest,
                         s.mainhand,
                         s.offhand,
-                        s.legs,
-                        s.feet,
+                        s.level,
                         s.rank
                     )
                 )
@@ -358,7 +362,7 @@ contract ChampionGame is ERC721URIStorage, Ownable {
             uint256(
                 keccak256(
                     abi.encodePacked(
-                        tx.origin,
+                        _msgSender(),
                         blockhash(block.number - 1),
                         block.timestamp,
                         seed
