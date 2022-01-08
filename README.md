@@ -7,16 +7,6 @@ Where champions are born
 3. Add concept of level [IN-PROGRESS]
 4. Update stats to no longer randomly generate and possible simplify them [IN-PROGRESS]
 
-## thoughts
-Would be great to have time based and level based things to unlock more characters and armor and stuff, and have some
-of that built into the v1 game. Yeah like only 10k every 24 hours or something
-- a combination of time and frequency
-    - 10k total supply
-    - 1k or 24 hours
-        ex: someone can't mint them all faster than 1 day, basically a cooldown period
-    - staking can begin right away
-- literally easier to just charge a small amount than rate limit, like .01 or .02 eth
-
 ## Story
 Deep within the metaverse, Champions plunder and clash for rewards. Champion Game allows indiduvals to stake their fight in the metaverse 100% on chain. Players will mint their own unique champion, empower it through strategic decision making, and battle to earn $CCOIN and exclusive rewards.
 
