@@ -201,13 +201,13 @@ export default class App extends React.Component {
         const res = justKeys.slice(justKeys.length / 2);
         const betterRes = res.map(r => {
             if (r === "rank") {
-                return r + " : " + levels[parseInt(champ[r])];
+                return r + ": " + levels[parseInt(champ[r])];
             }
-            return r + " : " + champ[r];
+            return r + ": " + champ[r];
         })
         return (
-            <div style={{ margin: '20px' }}>
-                champ id : {champId}
+            <div key={champId} style={{ margin: '20px' }}>
+                champ id: {champId}
                 {betterRes.map((x, j) => <div key={j}>{x}</div>)}
             </div>
         )
