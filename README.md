@@ -3,9 +3,9 @@ Where champions are born
 
 ## Code TODO
 1. Fully support sparring pits and dungeon [IN-PROGRESS]
-2. Create erc20 for epic rarity stone [TODO]
-3. Add concept of level [IN-PROGRESS]
-4. Update stats to no longer randomly generate and possible simplify them [IN-PROGRESS]
+2. Add concept of level [IN-PROGRESS]
+3. Update stats to no longer randomly generate and possible simplify them [IN-PROGRESS]
+4. ~Create erc20 for epic rarity stone~ Just create new epic nft [TODO]
 
 ## Story
 Deep within the metaverse, Champions plunder and clash for rewards. Champion Game allows indiduvals to stake their fight in the metaverse 100% on chain. Players will mint their own unique champion, empower it through strategic decision making, and battle to earn $CCOIN and exclusive rewards.

@@ -44,7 +44,15 @@ export default class App extends React.Component {
             return;
         }
 
-        this.provider = new ethers.providers.Web3Provider(window.ethereum)
+        this.provider = new ethers.providers.Web3Provider(window.ethereum, "any")
+        this.provider.on("network", (newNetwork, oldNetwork) => {
+            // When a Provider makes its initial connection, it emits a "network"
+            // event with a null oldNetwork along with the newNetwork. So, if the
+            // oldNetwork exists, it represents a changing network
+            if (oldNetwork) {
+                window.location.reload();
+            }
+        });
         console.log(await this.provider.getBlockNumber());
 
         // this is super important, this is what links to metamask
