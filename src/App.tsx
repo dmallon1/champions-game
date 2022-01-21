@@ -1,5 +1,5 @@
 import './App.css';
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import React from 'react';
 import { abi } from './contractInterface';
 import { coinAbi } from './coinContractInterface';
@@ -15,19 +15,56 @@ const levels = ["common",
     "epic",
     "legendary"];
 
-export default class App extends React.Component {
-    constructor(props) {
+interface IProps {
+}
+
+interface IState {
+    champIds: number[];
+    champBalance: number;
+    coinBalance: number;
+    champs: any[];
+    allDungeonStakes: any[];
+    myDungeonStakes: any[];
+    showAddEther: boolean;
+    myWallet: string;
+}
+
+interface OwnerToChampIds {
+    [key: string]: number[];
+}
+
+declare global {
+    interface Window {
+        ethereum: any;
+    }
+}
+
+
+export default class App extends React.Component<IProps, IState> {
+    provider: ethers.providers.Web3Provider;
+    walletddress: string;
+    readContract: ethers.Contract;
+    writeContract: ethers.Contract;
+    coinReadContract: ethers.Contract;
+    traitReadContract: ethers.Contract;
+    traitWriteContract: ethers.Contract;
+    ownerToChampionIds: OwnerToChampIds;
+    allChamps: any[];
+
+    constructor(props: IProps) {
         super(props);
         this.state = {
-            champBalance: '~',
-            coinBalance: '~',
-            champs: null,
-            champIds: null,
-            allDungeonStakes: null,
-            myDungeonStakes: null,
+            champBalance: 0,
+            coinBalance: 0,
+            champs: [],
+            champIds: [],
+            allDungeonStakes: [],
+            myDungeonStakes: [],
             showAddEther: false,
             myWallet: ""
         }
+
+
 
         this.showChampionInfo = this.showChampionInfo.bind(this);
     }
@@ -88,7 +125,7 @@ export default class App extends React.Component {
         const totalTokens = await this.readContract.minted();
         const myCoinBalance = await this.getCoinBalance();
 
-        this.readContract.balanceOf(this.walletddress).then((champBalance) =>
+        this.readContract.balanceOf(this.walletddress).then((champBalance: BigNumber) =>
             this.setState({ champBalance: champBalance.toNumber() })
         );
 
@@ -98,8 +135,8 @@ export default class App extends React.Component {
 
         this.refreshDungeonStakes(totalTokens);
 
-        const proms = []
-        const champIds = []
+        const proms: Promise<any>[] = []
+        const champIds: number[] = []
         if (this.ownerToChampionIds && this.ownerToChampionIds[this.walletddress]) {
             this.ownerToChampionIds[this.walletddress].forEach(async c => {
                 proms.push(this.readContract.champions(c));
@@ -132,8 +169,8 @@ export default class App extends React.Component {
         console.log(tx);
     }
 
-    async getOwnerToChampionIds(totalTokens) {
-        const ownerToChampionIds = {}
+    async getOwnerToChampionIds(totalTokens: number) {
+        const ownerToChampionIds: OwnerToChampIds = {}
         for (let i = 0; i < totalTokens; i++) {
             const owner = await this.readContract.ownerOf(i);
             if (ownerToChampionIds[owner] === undefined) {
@@ -144,7 +181,7 @@ export default class App extends React.Component {
         return ownerToChampionIds;
     }
 
-    async getAllChampions(totalTokens) {
+    async getAllChampions(totalTokens: number) {
         const proms = [];
         for (let i = 0; i < totalTokens; i++) {
             proms.push(this.readContract.champions(i));
@@ -152,7 +189,7 @@ export default class App extends React.Component {
         Promise.all(proms).then(c => this.allChamps = c);
     }
 
-    async refreshDungeonStakes(totalTokens) {
+    async refreshDungeonStakes(totalTokens: number) {
         const dungeonStakes = []
         const myDungeonStakes = []
         for (let i = 0; i < totalTokens; i++) {
@@ -177,7 +214,7 @@ export default class App extends React.Component {
         console.log(await this.writeContract.stakeChampion(firstChampId, 0, { gasLimit: doubleGas }));
     }
 
-    async claimRewards(unstake) {
+    async claimRewards(unstake: boolean) {
         if (this.state.myDungeonStakes.length === 0) {
             return;
         }
@@ -199,7 +236,7 @@ export default class App extends React.Component {
         return realTing;
     }
 
-    showChampionInfo(champId) {
+    showChampionInfo(champId: number) {
         if (!this.allChamps) {
             return null;
         }
@@ -270,9 +307,9 @@ export default class App extends React.Component {
     render() {
         return (
             <Router>
-                <NavBarFunc productsInCart={this.state.productsInCart} numProducts={this.numProducts} />
+                <NavBarFunc />
                 <Routes>
-                    <Route path="/" exact element={this.Game()} />
+                    <Route path="/" element={this.Game()} />
                     <Route path="/whitepaper" element={Whitepaper()} />
                     <Route path="/faq" element={FAQ()} />
                 </Routes>
@@ -281,7 +318,7 @@ export default class App extends React.Component {
     }
 }
 
-function NavBarFunc(props) {
+function NavBarFunc() {
     return (
         <Navbar className="border border-dark" style={{ backgroundColor: 'black' }}>
             <Link to="/">
@@ -369,7 +406,7 @@ function FAQ() {
 }
 
 
-const contractAddress = "0x8F3c9734f7cb884A9e624700742b93951e37c26B";
+const contractAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
 // const contractAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
-const coinContractAddress = "0xf4F75e37Ed180F0A7D6B8023173B097686536f92";
+const coinContractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 const traitsContractAddress = "0x84B42ae67ccb215bAE6e98985f51479b00a02F06";
