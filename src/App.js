@@ -102,6 +102,8 @@ export default class App extends React.Component {
         const champIds = []
         if (this.ownerToChampionIds && this.ownerToChampionIds[this.walletddress]) {
             this.ownerToChampionIds[this.walletddress].forEach(async c => {
+                console.log("refresh");
+                console.log(c);
                 proms.push(this.readContract.champions(c));
                 champIds.push(c);
             });
@@ -147,6 +149,8 @@ export default class App extends React.Component {
     async getAllChampions(totalTokens) {
         const proms = [];
         for (let i = 0; i < totalTokens; i++) {
+            console.log("get all champs");
+            console.log(i);
             proms.push(this.readContract.champions(i));
         }
         Promise.all(proms).then(c => this.allChamps = c);
@@ -369,7 +373,7 @@ function FAQ() {
 }
 
 
-const contractAddress = "0x8F3c9734f7cb884A9e624700742b93951e37c26B";
+const contractAddress = "0x27789d83E05eA96F6B3c44B1F4f094C2a72F938b";
 // const contractAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
-const coinContractAddress = "0xf4F75e37Ed180F0A7D6B8023173B097686536f92";
+const coinContractAddress = "0x7675d8598F64F2A593AAFaaF9aF4F79104e9DEE2";
 const traitsContractAddress = "0x84B42ae67ccb215bAE6e98985f51479b00a02F06";
