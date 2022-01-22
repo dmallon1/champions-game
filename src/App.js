@@ -345,6 +345,7 @@ function Whitepaper() {
                 <h2>Contract addresses</h2>
                 <p>champions game contract: {contractAddress}</p>
                 <p>$CCOIN contract: {coinContractAddress}</p>
+                <p>traits contract: {traitsContractAddress}</p>
             </div>
         </div>
 
@@ -373,7 +374,6 @@ function FAQ() {
 }
 
 
-const contractAddress = "0x27789d83E05eA96F6B3c44B1F4f094C2a72F938b";
-// const contractAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
-const coinContractAddress = "0x7675d8598F64F2A593AAFaaF9aF4F79104e9DEE2";
-const traitsContractAddress = "0x84B42ae67ccb215bAE6e98985f51479b00a02F06";
+const coinContractAddress = "0x26B9b8Ffc0948d364a087656dd63e0972dea5805";
+const contractAddress = "0x3777231bc60A15A982C7d4Af8054e8445F62447c";
+const traitsContractAddress = "0x8E1290b017802B5732747FEed5B46B4A8bC6933a";
