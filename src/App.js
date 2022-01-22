@@ -29,6 +29,7 @@ export default class App extends React.Component {
             myWallet: "",
             mintAmount: "",
             stakeChampionId: "",
+            locationNumber: ""
         }
 
         this.showChampionInfo = this.showChampionInfo.bind(this);
@@ -177,12 +178,23 @@ export default class App extends React.Component {
                 myDungeonStakes.push({ id: i, stake: ds });
             }
         }
+        console.log(myDungeonStakes);
         this.setState({ allDungeonStakes: dungeonStakes, myDungeonStakes: myDungeonStakes });
     }
 
-    async stake(location) {
-        const firstChampId = this.state.champIds[0];
-        const params = { firstChampId: firstChampId, location: location === undefined ? 0 : location };
+    async stake() {
+        let firstChampId = this.state.champIds[0];
+        let location = 0;
+
+        if (this.state.stakeChampionId !== "") {
+            firstChampId = this.state.stakeChampionId;
+        }
+
+        if (this.state.locationNumber !== "") {
+            location = this.state.locationNumber;
+        }
+
+        const params = { firstChampId: firstChampId, location: location };
         console.log("sending champion " + params.firstChampId + " to " + params.location);
         const estimatedGas = await this.writeContract.estimateGas.stakeChampion(params.firstChampId, params.location);
         const doubleGas = estimatedGas.add(estimatedGas);
@@ -251,8 +263,10 @@ export default class App extends React.Component {
     handleChange(event, type) {
         if (type === "mint") {
             this.setState({ mintAmount: event.target.value });
-        } else {
+        } else if (type === "stake") {
             this.setState({ stakeChampionId: event.target.value });
+        } else {
+            this.setState({ locationNumber: event.target.value });
         }
     }
 
@@ -272,6 +286,8 @@ export default class App extends React.Component {
                     </div>
                     <br />
                     <button type="button" className="btn btn-dark" onClick={() => this.stake()} style={{ height: '8vh', width: '40vw' }}>stake</button>
+                    <input type="text" placeholder='location' value={this.state.locationNumber} onChange={(e) => this.handleChange(e, "location")} />
+
                     <button type="button" className="btn btn-dark" onClick={() => this.claimRewards(false)} style={{ height: '8vh', width: '40vw' }}>claim rewards only</button>
                     <button type="button" className="btn btn-dark" onClick={() => this.claimRewards(true)} style={{ height: '8vh', width: '40vw' }}>claim rewards and unstake</button>
                     <input type="text" placeholder='champion id' value={this.state.stakeChampionId} onChange={(e) => this.handleChange(e, "stake")} />
