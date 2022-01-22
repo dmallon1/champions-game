@@ -117,10 +117,10 @@ export default class App extends React.Component {
         const signer = this.provider.getSigner();
 
         // TODO: update this to not be hardcoded
-        const estimatedGas = await this.writeContract.estimateGas.mint(1, { value: ethers.utils.parseEther("0.02") });
+        const estimatedGas = await this.writeContract.estimateGas.mint(10, { value: ethers.utils.parseEther("0.2") });
         const doubleGas = estimatedGas.add(estimatedGas);
 
-        console.log(await this.writeContract.mint(1, { gasLimit: doubleGas, value: ethers.utils.parseEther("0.02") }));
+        console.log(await this.writeContract.mint(10, { gasLimit: doubleGas, value: ethers.utils.parseEther("0.2") }));
     }
 
     async addEther() {
@@ -171,14 +171,15 @@ export default class App extends React.Component {
         this.setState({ allDungeonStakes: dungeonStakes, myDungeonStakes: myDungeonStakes });
     }
 
-    async goToDungeon() {
+    async stake(location) {
         const firstChampId = this.state.champIds[0];
-        console.log("sending champion " + firstChampId + " to dungeon");
-        const estimatedGas = await this.writeContract.estimateGas.stakeChampion(firstChampId, 0);
+        const params = { firstChampId: firstChampId, location: location === undefined ? 0 : location };
+        console.log("sending champion " + params.firstChampId + " to " + params.location);
+        const estimatedGas = await this.writeContract.estimateGas.stakeChampion(params.firstChampId, params.location);
         const doubleGas = estimatedGas.add(estimatedGas);
 
         // TODO: update with location
-        console.log(await this.writeContract.stakeChampion(firstChampId, 0, { gasLimit: doubleGas }));
+        console.log(await this.writeContract.stakeChampion(params.firstChampId, params.location, { gasLimit: doubleGas }));
     }
 
     async claimRewards(unstake) {
@@ -244,7 +245,7 @@ export default class App extends React.Component {
                     {/* <p>your wallet: {this.state.myWallet}</p> */}
                     {this.state.showAddEther && <button type="button" className="btn btn-dark" onClick={() => this.addEther()} style={{ height: '8vh', width: '40vw' }}>add ether</button>}
                     <button type="button" className="btn btn-dark" onClick={() => this.mint()} style={{ height: '8vh', width: '40vw' }}>mint</button>
-                    <button type="button" className="btn btn-dark" onClick={() => this.goToDungeon()} style={{ height: '8vh', width: '40vw' }}>go to dungeon</button>
+                    <button type="button" className="btn btn-dark" onClick={() => this.stake()} style={{ height: '8vh', width: '40vw' }}>stake</button>
                     <button type="button" className="btn btn-dark" onClick={() => this.claimRewards(false)} style={{ height: '8vh', width: '40vw' }}>claim rewards only</button>
                     <button type="button" className="btn btn-dark" onClick={() => this.claimRewards(true)} style={{ height: '8vh', width: '40vw' }}>claim rewards and unstake</button>
                     {/* <button type="button" className="btn btn-dark" onClick={() => this.uploadImage()} style={{ height: '8vh', width: '40vw' }}>upload image</button>
