@@ -5,9 +5,10 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "./ChampionCoin.sol";
+import "hardhat/console.sol";
 
 contract ChampionGame is ERC721URIStorage, Ownable {
-    uint256 public constant DAILY_CCOIN_RATE = 10000 ether;
+    uint256 public constant LEVEL_COST = 10;
     uint256 public constant MINT_COST = .02 ether;
     uint256 public constant MINIMUM_TO_EXIT = 1 days;
     uint16 public constant MAX_SUPPLY = 10000;
@@ -29,7 +30,6 @@ contract ChampionGame is ERC721URIStorage, Ownable {
 
     enum Rank {
         COMMON,
-        UNCOMMON,
         RARE,
         EPIC,
         LEGENDARY
@@ -191,7 +191,7 @@ contract ChampionGame is ERC721URIStorage, Ownable {
         );
         require(
             amount * MINT_COST == msg.value,
-            "not enough ether, mint costs .02 eth"
+            "not enough ether, mint costs .02 eth per champ"
         );
         require(
             minted + amount <= MAX_SUPPLY,
@@ -235,8 +235,66 @@ contract ChampionGame is ERC721URIStorage, Ownable {
             "not enough time has passed to claim rewards"
         );
 
-        uint256 owed = ((block.timestamp - stake.timestamp) *
-            DAILY_CCOIN_RATE) / 1 days;
+        uint256 daysAtLocation = (block.timestamp - stake.timestamp) / 1 days;
+        Champion storage champ = champions[championId]; // TODO: figure out optimal memory/storage
+        uint16 randomNumber = uint16(random(championId));
+
+        console.log(
+            "time passed %s min time %s",
+            block.timestamp - stake.timestamp,
+            MINIMUM_TO_EXIT
+        );
+        console.log("days %s rand %s", daysAtLocation, randomNumber);
+
+        // if champion is in one loca
+        uint256 coinsToPay;
+        if (stake.location == Location.DUNGEON) {
+            // Rewards 1-15 $CCOIN per run
+            if (champ.rank == Rank.COMMON) {
+                coinsToPay = (randomNumber % 7) + 1;
+            } else {
+                coinsToPay = (randomNumber % 15) + 1;
+            }
+
+            coinsToPay *= daysAtLocation;
+
+            // Small chance for attribute upgrade
+            if (randomNumber < 5000) {
+                // max is 65k
+                uint256 randomStatNumber = randomNumber % 4;
+                if (randomStatNumber == 0) champ.head += 1;
+                if (randomStatNumber == 1) champ.body += 1;
+                if (randomStatNumber == 2) champ.mainhand += 1;
+                if (randomStatNumber == 3) champ.offhand += 1;
+            }
+        } else {
+            uint256 coinBalance = championCoin.balanceOf(_msgSender()); // technically an external call
+            uint256 numberLevelsCanAfford = coinBalance / LEVEL_COST;
+            console.log(
+                "balance %s, cost %s, levels can afford: %s",
+                coinBalance,
+                LEVEL_COST,
+                numberLevelsCanAfford
+            );
+            // min(number of levels earned for all days, number of levels you can afford)
+            uint256 levelsToUpgrade;
+            if (daysAtLocation > numberLevelsCanAfford) {
+                levelsToUpgrade = numberLevelsCanAfford;
+            } else {
+                levelsToUpgrade = daysAtLocation;
+            }
+
+            console.log("levels to upgrade: %s", levelsToUpgrade);
+
+            champ.level += uint8(levelsToUpgrade); // could definitely overflow // probably should do this better than a cast
+
+            // burn it, could change things
+            championCoin.burn(_msgSender(), levelsToUpgrade * LEVEL_COST);
+
+            if (randomNumber < 50) {
+                // TODO: you get epic nft
+            }
+        }
 
         if (unstake) {
             delete stakes[championId];
@@ -245,7 +303,9 @@ contract ChampionGame is ERC721URIStorage, Ownable {
             stakes[championId].timestamp = uint80(block.timestamp);
         }
 
-        championCoin.mint(_msgSender(), owed);
+        if (coinsToPay > 0) {
+            championCoin.mint(_msgSender(), coinsToPay);
+        }
     }
 
     function getChampions(uint256 tokenId)
