@@ -26,7 +26,9 @@ export default class App extends React.Component {
             allDungeonStakes: null,
             myDungeonStakes: null,
             showAddEther: false,
-            myWallet: ""
+            myWallet: "",
+            mintAmount: "",
+            stakeChampionId: "",
         }
 
         this.showChampionInfo = this.showChampionInfo.bind(this);
@@ -116,11 +118,18 @@ export default class App extends React.Component {
     async mint() {
         const signer = this.provider.getSigner();
 
+        let amount = 10;
+        if (this.state.mintAmount !== "") {
+            amount = this.state.mintAmount;
+        }
+
+        const price = amount * .02;
+
         // TODO: update this to not be hardcoded
-        const estimatedGas = await this.writeContract.estimateGas.mint(10, { value: ethers.utils.parseEther("0.2") });
+        const estimatedGas = await this.writeContract.estimateGas.mint(amount, { value: ethers.utils.parseEther(price.toString()) });
         const doubleGas = estimatedGas.add(estimatedGas);
 
-        console.log(await this.writeContract.mint(10, { gasLimit: doubleGas, value: ethers.utils.parseEther("0.2") }));
+        console.log(await this.writeContract.mint(amount, { gasLimit: doubleGas, value: ethers.utils.parseEther(price.toString()) }));
     }
 
     async addEther() {
@@ -186,7 +195,12 @@ export default class App extends React.Component {
         if (this.state.myDungeonStakes.length === 0) {
             return;
         }
-        const firstChampId = this.state.myDungeonStakes[0].id;
+        let firstChampId = this.state.myDungeonStakes[0].id;
+
+        if (this.state.stakeChampionId !== "") {
+            firstChampId = this.state.stakeChampionId;
+        }
+
         console.log("claiming rewards for champion " + firstChampId);
         const estimatedGas = await this.writeContract.estimateGas.claimRewards(firstChampId, unstake);
         const doubleGas = estimatedGas.add(estimatedGas);
@@ -234,6 +248,14 @@ export default class App extends React.Component {
         console.log(await this.traitReadContract.traitData(0, 1));
     }
 
+    handleChange(event, type) {
+        if (type === "mint") {
+            this.setState({ mintAmount: event.target.value });
+        } else {
+            this.setState({ stakeChampionId: event.target.value });
+        }
+    }
+
     Game() {
         return (
             <div className="App" >
@@ -244,10 +266,15 @@ export default class App extends React.Component {
                     <p>coin contract: {coinContractAddress}</p> */}
                     {/* <p>your wallet: {this.state.myWallet}</p> */}
                     {this.state.showAddEther && <button type="button" className="btn btn-dark" onClick={() => this.addEther()} style={{ height: '8vh', width: '40vw' }}>add ether</button>}
-                    <button type="button" className="btn btn-dark" onClick={() => this.mint()} style={{ height: '8vh', width: '40vw' }}>mint</button>
+                    <div>
+                        <button type="button" className="btn btn-dark" onClick={() => this.mint()} style={{ height: '8vh', width: '40vw' }}>mint</button>
+                        <input type="text" placeholder='amount' value={this.state.mintAmount} onChange={(e) => this.handleChange(e, "mint")} />
+                    </div>
+                    <br />
                     <button type="button" className="btn btn-dark" onClick={() => this.stake()} style={{ height: '8vh', width: '40vw' }}>stake</button>
                     <button type="button" className="btn btn-dark" onClick={() => this.claimRewards(false)} style={{ height: '8vh', width: '40vw' }}>claim rewards only</button>
                     <button type="button" className="btn btn-dark" onClick={() => this.claimRewards(true)} style={{ height: '8vh', width: '40vw' }}>claim rewards and unstake</button>
+                    <input type="text" placeholder='champion id' value={this.state.stakeChampionId} onChange={(e) => this.handleChange(e, "stake")} />
                     {/* <button type="button" className="btn btn-dark" onClick={() => this.uploadImage()} style={{ height: '8vh', width: '40vw' }}>upload image</button>
                     <button type="button" className="btn btn-dark" onClick={() => this.readTraitData()} style={{ height: '8vh', width: '40vw' }}>read image data</button> */}
                     <p>$CCOIN balance: {this.state.coinBalance}</p>
