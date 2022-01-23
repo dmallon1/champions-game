@@ -6,6 +6,7 @@ Where champions are born
 2. Support staking in mint function [TODO]
 3. Support staking multiple at once [TODO]
 4. Update stats to no longer randomly generate and possible simplify them [TODO]
+5. Set optimizer in hardhat config https://hardhat.org/guides/compile-contracts.html [TODO]
 
 ## Story
 Deep within the metaverse, Champions plunder and clash for rewards. Champion Game allows indiduvals to stake their fight in the metaverse 100% on chain. Players will mint their own unique champion, empower it through strategic decision making, and battle to earn $CCOIN and exclusive rewards.
