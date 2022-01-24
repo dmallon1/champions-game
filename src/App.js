@@ -11,7 +11,7 @@ import Nav from 'react-bootstrap/Nav';
 const zeroAddress = "0x0000000000000000000000000000000000000000";
 const levels = ["common",
     "uncommon",
-    "rare",
+    "rare"
     "epic",
     "legendary"];
 
