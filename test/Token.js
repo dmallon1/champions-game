@@ -39,10 +39,8 @@ describe("champ tests", () => {
         // }
 
         // send 2 to dungeon, 2 to sparring pits
-        await championGameContract.connect(addr1).stakeChampion(0, 0);
-        await championGameContract.connect(addr1).stakeChampion(1, 0);
-        await championGameContract.connect(addr1).stakeChampion(2, 1);
-        await championGameContract.connect(addr1).stakeChampion(3, 1);
+        await championGameContract.connect(addr1).stakeChampion([0, 1], 0);
+        await championGameContract.connect(addr1).stakeChampion([2, 3], 1);
 
         expect(await championGameContract.balanceOf(championGameContract.address)).to.equal(BigNumber.from(4));
         expect(await championGameContract.balanceOf(addr1.address)).to.equal(BigNumber.from(1));

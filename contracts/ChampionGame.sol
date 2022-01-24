@@ -186,7 +186,7 @@ contract ChampionGame is ERC721URIStorage, Ownable {
     function mint(uint256 amount) external payable returns (uint256 newItemId) {
         require(tx.origin == _msgSender(), "Only EOA");
         require(
-            amount > 0 && amount <= 10,
+            amount > 0 && amount < 11,
             "Invalid mint amount, must be between 1 and 10"
         );
         require(
@@ -207,16 +207,25 @@ contract ChampionGame is ERC721URIStorage, Ownable {
         }
     }
 
-    function stakeChampion(uint256 championId, Location location) external {
-        require(_msgSender() == ownerOf(championId), "not yo champion");
+    function stakeChampion(uint256[] calldata championIds, Location location)
+        external
+    {
+        uint256 i;
+        for (i = 0; i < championIds.length; i++) {
+            require(_msgSender() == ownerOf(championIds[i]), "not yo champion");
+        }
 
-        stakes[championId] = Stake({
-            owner: _msgSender(),
-            timestamp: uint80(block.timestamp),
-            location: location
-        });
+        for (i = 0; i < championIds.length; i++) {
+            stakes[championIds[i]] = Stake({
+                owner: _msgSender(),
+                timestamp: uint80(block.timestamp),
+                location: location
+            });
+        }
 
-        transferFrom(_msgSender(), address(this), championId);
+        for (i = 0; i < championIds.length; i++) {
+            transferFrom(_msgSender(), address(this), championIds[i]);
+        }
     }
 
     function claimRewards(uint256 championId, bool unstake) external {

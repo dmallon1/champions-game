@@ -196,11 +196,10 @@ export default class App extends React.Component {
 
         const params = { firstChampId: firstChampId, location: location };
         console.log("sending champion " + params.firstChampId + " to " + params.location);
-        const estimatedGas = await this.writeContract.estimateGas.stakeChampion(params.firstChampId, params.location);
+        const estimatedGas = await this.writeContract.estimateGas.stakeChampion([params.firstChampId], params.location);
         const doubleGas = estimatedGas.add(estimatedGas);
 
-        // TODO: update with location
-        console.log(await this.writeContract.stakeChampion(params.firstChampId, params.location, { gasLimit: doubleGas }));
+        console.log(await this.writeContract.stakeChampion([params.firstChampId], params.location, { gasLimit: doubleGas }));
     }
 
     async claimRewards(unstake) {
