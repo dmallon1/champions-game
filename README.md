@@ -1,11 +1,13 @@
 # champions-game
 Where champions are born
 
-## Code TODO
-1. Add random chance for new epic nft in sparring pits [TODO]
-2. Support staking in mint function [TODO]
-3. Update stats to no longer randomly generate and possible simplify them [TODO]
-4. Support being able to change locations
+## Solidity Code TODO
+MVP
+1. Simplify stat generation, finalize attributes
+POST LAUNCH
+2. Support being able to change locations
+3. Support staking in mint function
+4. Support allowing legendary somehow, could have an owner only mint that sets traits manually
 
 ## Story
 Deep within the metaverse, Champions plunder and clash for rewards. Champion Game allows indiduvals to stake their fight in the metaverse 100% on chain. Players will mint their own unique champion, empower it through strategic decision making, and battle to earn $CCOIN and exclusive rewards.

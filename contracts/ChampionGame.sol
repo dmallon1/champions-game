@@ -183,7 +183,11 @@ contract ChampionGame is ERC721URIStorage, Ownable {
     */
 
     // TODO: add bool stake
-    function mint(uint256 amount) external payable returns (uint256 newItemId) {
+    function mint(uint256 amount)
+        external
+        payable
+        returns (uint256 latestChampId)
+    {
         require(tx.origin == _msgSender(), "Only EOA");
         require(
             amount > 0 && amount < 11,
@@ -198,13 +202,7 @@ contract ChampionGame is ERC721URIStorage, Ownable {
             "all champions have been minted"
         );
 
-        uint256 seed;
-        for (uint256 i = 0; i < amount; i++) {
-            newItemId = minted++;
-            seed = random(newItemId);
-            generate(newItemId, seed);
-            _mint(_msgSender(), newItemId);
-        }
+        return _mintChamps(amount);
     }
 
     function stakeChampion(uint256[] calldata championIds, Location location)
@@ -246,7 +244,7 @@ contract ChampionGame is ERC721URIStorage, Ownable {
 
         uint256 daysAtLocation = (block.timestamp - stake.timestamp) / 1 days;
         Champion storage champ = champions[championId]; // TODO: figure out optimal memory/storage
-        uint16 randomNumber = uint16(random(championId));
+        uint16 randomNumber = uint16(_random(championId));
 
         console.log(
             "time passed %s min time %s",
@@ -277,6 +275,7 @@ contract ChampionGame is ERC721URIStorage, Ownable {
                 if (randomStatNumber == 3) champ.offhand += 1;
             }
         } else {
+            // SPARRING PITS
             uint256 coinBalance = championCoin.balanceOf(_msgSender()); // technically an external call
             uint256 numberLevelsCanAfford = coinBalance / LEVEL_COST;
             console.log(
@@ -300,8 +299,12 @@ contract ChampionGame is ERC721URIStorage, Ownable {
             // burn it, could change things
             championCoin.burn(_msgSender(), levelsToUpgrade * LEVEL_COST);
 
-            if (randomNumber < 50) {
-                // TODO: you get epic nft
+            if (minted < MAX_SUPPLY && randomNumber < 50) {
+                // you win!
+                console.log("you win!");
+                _mintChamps(1);
+                Champion storage epicChampion = champions[minted];
+                epicChampion.rank = Rank.EPIC;
             }
         }
 
@@ -340,23 +343,36 @@ contract ChampionGame is ERC721URIStorage, Ownable {
     |_|_| |_|\__\___|_|  |_| |_|\__,_|_| |_|  \__,_|_| |_|\___|\__|_|\___/|_| |_|___/
     */
 
+    function _mintChamps(uint256 amount)
+        internal
+        returns (uint256 latestChampId)
+    {
+        uint256 seed;
+        for (uint256 i = 0; i < amount; i++) {
+            latestChampId = minted++;
+            seed = _random(latestChampId);
+            _generate(latestChampId, seed);
+            _mint(_msgSender(), latestChampId);
+        }
+    }
+
     /**
      * generates traits for a specific token, checking to make sure it's unique
      * @param tokenId the id of the token to generate traits for
      * @param seed a pseudorandom 256 bit number to derive traits from
      * @return t - a struct of traits for the given token ID
      */
-    function generate(uint256 tokenId, uint256 seed)
+    function _generate(uint256 tokenId, uint256 seed)
         internal
         returns (Champion memory t)
     {
-        t = selectTraits(seed);
-        if (existingCombinations[structToHash(t)] == 0) {
+        t = _selectTraits(seed);
+        if (existingCombinations[_structToHash(t)] == 0) {
             champions[tokenId] = t;
-            existingCombinations[structToHash(t)] = tokenId;
+            existingCombinations[_structToHash(t)] = tokenId;
             return t;
         }
-        return generate(tokenId, random(seed));
+        return _generate(tokenId, _random(seed));
     }
 
     /**
@@ -364,19 +380,19 @@ contract ChampionGame is ERC721URIStorage, Ownable {
      * @param seed a pseudorandom 256 bit number to derive traits from
      * @return t -  a struct of randomly selected traits
      */
-    function selectTraits(uint256 seed)
+    function _selectTraits(uint256 seed)
         internal
         view
         returns (Champion memory t)
     {
         seed >>= 16;
-        t.head = selectTrait(uint16(seed & 0xFFFF), 0);
+        t.head = _selectTrait(uint16(seed & 0xFFFF), 0);
         seed >>= 16;
-        t.body = selectTrait(uint16(seed & 0xFFFF), 1);
+        t.body = _selectTrait(uint16(seed & 0xFFFF), 1);
         seed >>= 16;
-        t.mainhand = selectTrait(uint16(seed & 0xFFFF), 2);
+        t.mainhand = _selectTrait(uint16(seed & 0xFFFF), 2);
         seed >>= 16;
-        t.offhand = selectTrait(uint16(seed & 0xFFFF), 3);
+        t.offhand = _selectTrait(uint16(seed & 0xFFFF), 3);
         seed >>= 16;
         t.level = 1;
         t.rank = Rank.COMMON;
@@ -390,7 +406,7 @@ contract ChampionGame is ERC721URIStorage, Ownable {
      * @param traitType the trait type to select a trait for
      * @return the ID of the randomly selected trait
      */
-    function selectTrait(uint16 seed, uint8 traitType)
+    function _selectTrait(uint16 seed, uint8 traitType)
         internal
         view
         returns (uint8)
@@ -405,7 +421,7 @@ contract ChampionGame is ERC721URIStorage, Ownable {
      * @param s the struct to pack into a hash
      * @return the 256 bit hash of the struct
      */
-    function structToHash(Champion memory s) internal pure returns (uint256) {
+    function _structToHash(Champion memory s) internal pure returns (uint256) {
         return
             uint256(
                 keccak256(
@@ -426,7 +442,7 @@ contract ChampionGame is ERC721URIStorage, Ownable {
      * @param seed a value ensure different outcomes for different sources in the same block
      * @return a pseudorandom value
      */
-    function random(uint256 seed) internal view returns (uint256) {
+    function _random(uint256 seed) internal view returns (uint256) {
         return
             uint256(
                 keccak256(

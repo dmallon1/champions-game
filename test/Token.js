@@ -65,6 +65,11 @@ describe("champ tests", () => {
         expect(champ.level).to.be.above(1);
         const levelDifference = champ.level - 1;
         expect(newCoinBalance).to.equal(coinBalance - (10 * levelDifference));
+
+        // Only if they win
+        // expect(await championGameContract.balanceOf(addr1.address)).to.equal(BigNumber.from(1));
+        // const epicChamp = await championGameContract.champions(5);
+        // expect(epicChamp.rank).to.equal(2);
     });
 
     // it("validates dungeon and sparring pits", async () => {
