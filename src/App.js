@@ -117,8 +117,6 @@ export default class App extends React.Component {
     }
 
     async mint() {
-        const signer = this.provider.getSigner();
-
         let amount = 10;
         if (this.state.mintAmount !== "") {
             amount = this.state.mintAmount;
