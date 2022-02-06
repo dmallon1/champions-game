@@ -6,6 +6,7 @@ MVP
 1. Simplify stat generation, finalize attributes
 
 POST LAUNCH
+
 2. Support being able to change locations
 3. Support staking in mint function
 4. Support allowing legendary somehow, could have an owner only mint that sets traits manually
