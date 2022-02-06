@@ -4,6 +4,7 @@ Where champions are born
 ## Solidity Code TODO
 MVP
 1. Simplify stat generation, finalize attributes
+
 POST LAUNCH
 2. Support being able to change locations
 3. Support staking in mint function
