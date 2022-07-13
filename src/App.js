@@ -407,6 +407,45 @@ function FAQ() {
     );
 }
 
+function Road Map() {
+    return (
+        <div className='half-black pb-5'>
+            <div className='container' style={{ color: "white", maxWidth: '940px' }}>
+                <h1>Road Map</h1>
+
+                <h2>Phase 1:</h2>
+                <p>Sparring Pits</p>
+                <p>Dungeon Staking</p>
+
+                <h3>Phase 2:</h3>
+                <p>Bounty Hunt "Season One"
+                    -player versus player content coming soon</p>
+                <p>Season One Legendary Champions
+                   -highest bidders will claim their own legendary champion</p>
+
+                <h4>Phase 3:</h4>
+                <p>Raids!
+                    -earn limited weapons</p>
+                <p>Bounty Hunt "Season Two"</p>
+                <p>Season Two Legendary Champions</p>
+
+                <h5>Phase 4:</h5>
+                <p>Battle Royal
+                    -only one will win</p>
+                <p>New Raid</p>
+                <p>Bounty Hunt "Season Three"</p>
+                <p>Season Three Legendary Champions</p>
+
+                <h6>Phase 5:</h6>
+                <p>Champion Game 2</p>
+            </div>
+        </div>
+                
+    );
+ }
+
+        
+
 
 const coinContractAddress = "0x26B9b8Ffc0948d364a087656dd63e0972dea5805";
 const contractAddress = "0x3777231bc60A15A982C7d4Af8054e8445F62447c";
